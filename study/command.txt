@@ -1,0 +1,14 @@
+nest g resource apis/user
+find . -type f -name "*.spec.ts" -delete
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'));"
+npx prettier --write .
+
+
+# 1. Tạo file migration
+npx typeorm migration:generate -d src/database/data-source.ts -n CreateTables
+
+# 2. Chạy migration (tạo bảng trong database)
+npx typeorm migration:run -d src/database/data-source.ts
+
+# 3. Rollback migration (xóa bảng)
+npx typeorm migration:revert -d src/database/data-source.ts

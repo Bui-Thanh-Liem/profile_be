@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: profile_app
+    ports:
+      - '9000:9000'
+    env_file:
+      - ./.env
+    depends_on:
+      - mysql
+      - redis
+    restart: always
+    networks:
+      - app-network
+    volumes:
+      - ./public:/app/public/documents
+
+  mysql:
+    image: mysql:8.0
+    container_name: profile_mysql
+    ports:
+      - '3307:3306' # Port 3306 của MySQL được ánh xạ ra port 3307 trên máy host
+    env_file:
+      - ./.env
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    restart: always
+    networks:
+      - app-network
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ../mysql_data:/var/lib/mysql
+
+  redis:
+    image: redis:alpine
+    container_name: profile_redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  redis_data:

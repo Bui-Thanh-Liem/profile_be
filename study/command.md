@@ -1,0 +1,1 @@
+--flat --no-spec
