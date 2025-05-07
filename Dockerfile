@@ -10,11 +10,11 @@ COPY package*.json ./
 # Cài đặt các dependencies
 RUN npm install
 
-# 
-RUN npm install --include=optional sharp
-
 # Sao chép toàn bộ source code vào container
 COPY . .
+
+# Tùy chọn: Tối ưu hóa hiệu suất Node.js
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # Build ứng dụng NestJS
 RUN npm run build && echo "✅ Build thành công!" || (echo "❌ Build thất bại!" && exit 1)
