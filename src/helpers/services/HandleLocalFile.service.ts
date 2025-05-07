@@ -8,7 +8,7 @@ export class HandleLocalFileService {
   private readonly destination = '/uploads/';
 
   setFileUrlForClient(filename: string): string {
-    return `${process.env.SERVER_HOST}${this.destination}${filename}`;
+    return `${this.destination}${filename}`;
   }
 
   setFileUrlForServer(filenames: string[]): string[] {
