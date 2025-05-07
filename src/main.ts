@@ -52,7 +52,7 @@ async function bootstrap() {
     origin: [process.env.CLIENT_HOST],
     methods: ['HEAD', 'GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true, // access send request credentials(token, cookie, session) (client)
-    // allowedHeaders: ['Content-Type', 'Accept', 'Authorization'], // (client)
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization'], // (client)
   });
 
   // Convert json to javascript and check limit
