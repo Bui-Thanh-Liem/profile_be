@@ -8,6 +8,8 @@ import { CookieService } from 'src/helpers/services/Cookie.service';
 import { ICustomer } from 'src/interfaces/models.interface';
 import { CustomerService } from './customer.service';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { Customer } from 'src/decorators/customer.decorator';
+import { ResponseSuccess } from 'src/classes/response.class';
 
 @Controller(Constants.CONSTANT_ROUTE.CUSTOMER)
 export class CustomerController {
@@ -53,7 +55,7 @@ export class CustomerController {
       res,
     });
 
-    return res.redirect(`${process.env.CLIENT_HOST}/storage?loginType=google`);
+    return res.redirect(`${process.env.CLIENT_HOST}/storage?google_login=success`);
   }
 
   // @Post()
@@ -61,14 +63,23 @@ export class CustomerController {
   //   return this.customerService.register(createCustomerDto);
   // }
 
+  @Get('verify-login-google')
+  @Customer()
+  async verifyLoginGoogle(@Req() req: Request) {
+    const idCustomer = req['customer']?.customerId;
+    const result = await this.customerService.findOneById(idCustomer);
+    return new ResponseSuccess('Success', result);
+  }
+
   @Get()
   findAll() {
     return this.customerService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.customerService.findOne(+id);
+  async findOneById(@Param('id') id: string) {
+    const result = await this.customerService.findOneById(id);
+    return new ResponseSuccess('Success', result);
   }
 
   @Patch(':id')

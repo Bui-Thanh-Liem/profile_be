@@ -22,6 +22,7 @@ export class AboutController {
   @Public()
   async find() {
     const result = await this.aboutService.find();
+    console.log('result :::', result);
 
     //  Thêm tiền tố cho url ảnh
     result.image = this.handleLocalFileService.setFileUrlForClient(result.image);

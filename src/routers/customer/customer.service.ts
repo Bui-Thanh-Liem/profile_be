@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ICustomer } from 'src/interfaces/models.interface';
 import { IResponseLogin } from 'src/interfaces/response.interface';
@@ -6,6 +6,7 @@ import { TokenService } from 'src/libs/token/token.service';
 import { Repository } from 'typeorm';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { CustomerEntity } from './entities/customer.entity';
+import Exception from 'src/message-validations/exception.validation';
 
 @Injectable()
 export class CustomerService {
@@ -49,7 +50,7 @@ export class CustomerService {
 
     //
     const tokens = await this.tokenService.signToken({
-      customer: checkRegistered,
+      customer: newItem,
       deviceInfo,
       ipAddress,
     });
@@ -60,8 +61,12 @@ export class CustomerService {
     return `This action returns all customer`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} customer`;
+  async findOneById(id: string): Promise<ICustomer> {
+    const findItem = await this.customerRepository.findOneBy({ id });
+    if (!findItem) {
+      throw new NotFoundException(Exception.notfound('Customer'));
+    }
+    return findItem;
   }
 
   update(id: number, updateCustomerDto: UpdateCustomerDto) {

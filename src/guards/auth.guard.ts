@@ -29,6 +29,7 @@ export class JwtAuthGuard extends AuthGuard('jwt-auth') {
     }
 
     // Xác thực thủ công từ cookie cho customer, lấy token từ request.cookies và jwtService.verify()
+    this.logger.debug(`isCustomer:::, ${isCustomer}`);
     if (isCustomer) {
       this.logger.debug('Customer route detected');
       const request = context.switchToHttp().getRequest<Request>();
@@ -43,11 +44,11 @@ export class JwtAuthGuard extends AuthGuard('jwt-auth') {
         .verifyAccessToken(tokenCustomer)
         .then((decoded) => {
           request['customer'] = decoded;
-          return true;
         })
         .catch((error) => {
           throw new UnauthorizedException('Invalid or expired token');
         });
+      return true;
     }
 
     // 1.Xác thực theo strategy jwt-auth (Passport) cho phần mặc định
@@ -63,6 +64,7 @@ export class JwtAuthGuard extends AuthGuard('jwt-auth') {
 
     if (err || !user) {
       if (info?.name === 'TokenExpiredError') {
+        this.logger.debug(info);
         // Trả về lỗi 401 và message token hết hạn để Client biết, thực hiện thao tác refresh token
         throw new UnauthorizedException(Exception.expiredToken());
       }
