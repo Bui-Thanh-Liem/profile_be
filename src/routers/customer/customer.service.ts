@@ -1,11 +1,59 @@
-import { Injectable } from '@nestjs/common';
-import { CreateCustomerDto } from './dto/create-customer.dto';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ICustomer } from 'src/interfaces/models.interface';
+import { IResponseLogin } from 'src/interfaces/response.interface';
+import { TokenService } from 'src/libs/token/token.service';
+import { Repository } from 'typeorm';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { CustomerEntity } from './entities/customer.entity';
 
 @Injectable()
 export class CustomerService {
-  register(createCustomerDto: CreateCustomerDto) {
-    return 'This action adds a new customer';
+  constructor(
+    @Inject(forwardRef(() => TokenService))
+    private tokenService: TokenService,
+
+    @InjectRepository(CustomerEntity)
+    private customerRepository: Repository<CustomerEntity>,
+  ) {}
+
+  async registerOrLoginGg(
+    payload: Partial<ICustomer>,
+    deviceInfo: string,
+    ipAddress: string,
+  ): Promise<IResponseLogin<any>> {
+    const { email, fullName, avatar } = payload;
+
+    // Lần 2 gọi là đăng nhập
+    const checkRegistered = await this.customerRepository.findOneBy({ email });
+    if (checkRegistered) {
+      //
+      delete checkRegistered.password;
+
+      //
+      const tokens = await this.tokenService.signToken({
+        customer: checkRegistered,
+        deviceInfo,
+        ipAddress,
+      });
+      return { customer: checkRegistered, user: null, token: tokens };
+    }
+
+    // Lần đầu gọi là đăng kí
+    const dataCreate = this.customerRepository.create({
+      email,
+      fullName,
+      avatar,
+    });
+    const newItem = await this.customerRepository.save(dataCreate);
+
+    //
+    const tokens = await this.tokenService.signToken({
+      customer: checkRegistered,
+      deviceInfo,
+      ipAddress,
+    });
+    return { customer: newItem, user: null, token: tokens };
   }
 
   findAll() {

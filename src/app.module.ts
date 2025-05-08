@@ -30,6 +30,7 @@ import { SubjectGroupModule } from './routers/storages/subject-group/subject-gro
 import { SubjectItemModule } from './routers/storages/subject-item/subject-item.module';
 import { UserModule } from './routers/user/user.module';
 import { JwtAuthStrategy } from './strategies/auth.strategy';
+import { CustomerModule } from './routers/customer/customer.module';
 
 @Module({
   imports: [
@@ -92,6 +93,7 @@ import { JwtAuthStrategy } from './strategies/auth.strategy';
     // list module
     HelperModule,
     UserModule,
+    CustomerModule,
     AuthModule,
     RoleModule,
     TokenModule,

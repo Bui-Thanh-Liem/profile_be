@@ -13,3 +13,17 @@ export type ISendMail = InterfaceModel.ISendMail;
 export type ISubjectGroup = InterfaceModel.ISubjectGroup;
 export type ISubjectItem = InterfaceModel.ISubjectItem;
 export type IAbout = InterfaceModel.IAbout;
+export interface ICustomer extends IBase {
+  fullName: string;
+  avatar: string | null;
+  email: string;
+  password?: string;
+  phone?: string | null;
+  tokens: IToken[] | string[];
+  block: boolean;
+  status: boolean;
+
+  // from google
+  accessToken: string;
+  refreshToken: string;
+}

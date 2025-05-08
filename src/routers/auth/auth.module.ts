@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { HelperModule } from 'src/helpers/helper.module';
 import { QueueMailModule } from 'src/libs/bull/queue-mail/queue-mail.module';
 import { TokenEntity } from '../../libs/token/entities/token.entity';
 import { TokenModule } from '../../libs/token/token.module';
@@ -10,7 +11,6 @@ import { UserModule } from '../user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { LocalStrategy } from './strategy-local/local.strategy';
-import { HelperModule } from 'src/helpers/helper.module';
 
 @Module({
   imports: [

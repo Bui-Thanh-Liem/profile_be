@@ -1,4 +1,5 @@
 import { ABaseEntity } from 'src/abstracts/ABaseEntity.abstract';
+import { CustomerEntity } from 'src/routers/customer/entities/customer.entity';
 import { UserEntity } from 'src/routers/user/entities/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
@@ -13,6 +14,10 @@ export class TokenEntity extends ABaseEntity {
   @ManyToOne(() => UserEntity, (user) => user.tokens, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: Omit<UserEntity, 'password'>;
+
+  @ManyToOne(() => CustomerEntity, (cus) => cus.tokens, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'customer_id' })
+  customer: Omit<CustomerEntity, 'password'>;
 
   @Column({ type: 'boolean', default: false })
   isRevoked: boolean; // Lưu trạng thái token (đã bị thu hồi chưa).

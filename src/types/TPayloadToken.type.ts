@@ -1,3 +1,4 @@
 export type TPayloadToken = {
-  userId: string;
+  userId?: string;
+  customerId?: string;
 };

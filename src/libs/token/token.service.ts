@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IResultRefreshToken, IResultSignToken } from 'src/interfaces/result.interface';
@@ -11,20 +11,27 @@ import { UserService } from '../../routers/user/user.service';
 import { RevokeTokenDto } from './dto/revoke-token.dto';
 import { SignTokenDto } from './dto/sign-token.dto';
 import { TokenEntity } from './entities/token.entity';
+import { CustomerEntity } from 'src/routers/customer/entities/customer.entity';
+import { CustomerService } from 'src/routers/customer/customer.service';
 @Injectable()
 export class TokenService {
   constructor(
     @InjectRepository(TokenEntity)
     private tokenRepository: Repository<TokenEntity>,
     private jwtService: JwtService,
+
+    @Inject(forwardRef(() => UserService))
     private userService: UserService,
+
+    @Inject(forwardRef(() => CustomerService))
+    private customerService: CustomerService,
   ) {}
 
   async signToken(payload: SignTokenDto): Promise<IResultSignToken> {
-    const { user, deviceInfo, ipAddress } = payload;
+    const { user, customer, deviceInfo, ipAddress } = payload;
 
     //
-    const payloadToken: TPayloadToken = { userId: user.id };
+    const payloadToken: TPayloadToken = user ? { userId: user.id } : { customerId: customer.id };
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payloadToken, {
         secret: process.env.SECRET_ACCESS_KEY,
@@ -41,6 +48,7 @@ export class TokenService {
       token: accessToken,
       refreshToken: refreshToken,
       user: user as unknown as Omit<UserEntity, 'password'>,
+      customer: customer as unknown as Omit<CustomerEntity, 'password'>,
       deviceInfo,
       ipAddress,
       expiresAt: this.getTimeExpired(3),
@@ -71,10 +79,15 @@ export class TokenService {
     }
 
     // kiểm tra user của token này có trong database không
-    const user = await this.userService.findOneById(findToken.user?.id);
-    if (!user) {
-      throw new UnauthorizedException(Exception.notfound('User'));
-    }
+    // const user = await this.userService.findOneById(findToken.user?.id);
+    // if (!user) {
+    //   throw new UnauthorizedException(Exception.notfound('User'));
+    // }
+
+    // const customer = await this.customerService.findOneById(findToken.customer?.id);
+    // if (!user) {
+    //   throw new UnauthorizedException(Exception.notfound('Customer'));
+    // }
 
     // kiểm tra tính hợp lệ của refresh token
     const payload = await this.verifyRefreshToken(refreshToken);
