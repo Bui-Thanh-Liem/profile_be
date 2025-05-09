@@ -2,9 +2,9 @@ import { CreateAboutDto } from './dto/create-about.dto';
 
 export const aboutData: CreateAboutDto = {
   text: [
-    `Hi, I'm Bui Thanh Liem, a website developer with 1 year of experience in front-end and back-end development. I graduated from Ho Chi Minh City College of Information Technology, majoring in Information Technology (Website Development).`,
-    `Over the past year, I have gained practical experience in website development, including building responsive web applications, working with various frameworks, and managing projects from concept to deployment. My key skills include reading and interpreting technical documentation, analyzing and designing user-friendly interfaces, and handling data processing efficiently.`,
-    `I understand that continuous improvement is essential in this field. With my current experience, combined with my dedication, perseverance, and eagerness to learn, I am confident in my ability to grow and contribute effectively to any development team.`,
+    `I am Bùi Thanh Liêm, a web developer with nearly 2 years of in-depth experience in building modern web applications. Graduating with a degree in Website Development from Ho Chi Minh City College of Information Technology, I have honed my expertise through hands-on work with a variety of technologies and frameworks.`,
+    `My technical proficiency spans designing responsive interfaces and developing efficient back-end systems. I excel in analyzing technical documentation, crafting user-optimized interfaces, and managing complex data processing, ensuring seamless functionality and enhanced user experiences.`,
+    `Driven by perseverance and a commitment to continuous improvement, I approach every project with a collaborative spirit. My goal is to contribute to innovative technology initiatives and further my career in the dynamic field of web development.`,
   ],
   email: 'buithanhliem5073@gmail.com',
   phone: '+843 7525 5073',
