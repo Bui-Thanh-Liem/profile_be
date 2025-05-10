@@ -29,6 +29,8 @@ export class RoleService {
   ) {}
 
   async create({ payload, activeUser }: ICreateService<CreateRoleDto>): Promise<RoleEntity> {
+    console.log('payload create role:::', payload);
+
     //
     const creator = await this.userService.findOneById(activeUser.userId);
     if (!creator) {

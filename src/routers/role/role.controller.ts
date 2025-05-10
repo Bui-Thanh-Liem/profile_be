@@ -15,6 +15,8 @@ export class RoleController {
 
   @Post()
   async create(@Body() payload: CreateRoleDto, @ActiveUser() activeUser: TPayloadToken) {
+    console.log('payload controller:::', payload);
+
     const result = await this.roleService.create({ payload, activeUser });
     return new ResponseSuccess('Success', result);
   }

@@ -23,5 +23,5 @@ export class CreateRoleDto implements Partial<IRole> {
       },
     ],
   })
-  dataSources?: IRoleDataResource[];
+  dataSources: IRoleDataResource[];
 }
