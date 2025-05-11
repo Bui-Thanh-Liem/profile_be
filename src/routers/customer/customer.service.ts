@@ -61,7 +61,7 @@ export class CustomerService {
     return `This action returns all customer`;
   }
 
-  async findOneById(id: string): Promise<ICustomer> {
+  async findOneById(id: string): Promise<CustomerEntity> {
     const findItem = await this.customerRepository.findOneBy({ id });
     if (!findItem) {
       throw new NotFoundException(Exception.notfound('Customer'));
