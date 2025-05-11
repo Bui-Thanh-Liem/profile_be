@@ -67,13 +67,13 @@ async function bootstrap() {
       // whitelist: true, // Tự động loại bỏ các field khi không có decorator trong DTO -> server không thấy field đó
       forbidNonWhitelisted: true, // Bắt lỗi khi client gửi field không có trong DTO lên hoặc field đó không có decorator
       transformOptions: {
-        enableImplicitConversion: true, // Tự động chuyển type ngầm định,  VD 123 => '123'
+        // enableImplicitConversion: true, // Tự động chuyển type ngầm định,  VD 123 => '123'   # "nguy hiem"
       },
       exceptionFactory: (validationError) => {
         console.log('validationError::::', validationError);
         const err = validationError?.map((validateError) => ({
           field: validateError.property,
-          error: validateError.constraints,
+          error: validateError.constraints, // message errors
         }));
         throw new UnprocessableEntityException(err);
       },

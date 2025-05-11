@@ -145,8 +145,6 @@ export class UtilBuilder<T extends ABaseEntity> {
     }
 
     // Sorting
-    console.log('sortOrder:::', sortOrder);
-    console.log('sortBy:::', sortBy);
     if (sortBy) {
       this.queryBuilder.orderBy(`${this.alias}.${String(sortBy)}`, sortOrder.toUpperCase() === 'ASC' ? 'ASC' : 'DESC');
     }
