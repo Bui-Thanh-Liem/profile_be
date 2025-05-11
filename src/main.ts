@@ -65,10 +65,10 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       // whitelist: true, // Tự động loại bỏ các field khi không có decorator trong DTO -> server không thấy field đó
-      // forbidNonWhitelisted: true, // Bắt lỗi khi client gửi field không có trong DTO lên hoặc field đó không có decorator
-      // transformOptions: {
-      //   enableImplicitConversion: true, // Tự động chuyển type ngầm định,  VD 123 => '123'
-      // },
+      forbidNonWhitelisted: true, // Bắt lỗi khi client gửi field không có trong DTO lên hoặc field đó không có decorator
+      transformOptions: {
+        enableImplicitConversion: true, // Tự động chuyển type ngầm định,  VD 123 => '123'
+      },
       exceptionFactory: (validationError) => {
         console.log('validationError::::', validationError);
         const err = validationError?.map((validateError) => ({

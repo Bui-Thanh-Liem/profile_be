@@ -13,7 +13,7 @@ import { HttpExceptionFilter } from './filters/httpException.filter';
 import { TypeOrmExceptionFilter } from './filters/typeOrmException';
 import { JwtAuthGuard } from './guards/auth.guard';
 import { HelperModule } from './helpers/helper.module';
-import { LoggerInterceptor } from './interceptors/loggerInterceptor.interceptor';
+import { ErrorInterceptor } from './interceptors/ErrorInterceptor.interceptor';
 import { QueueMailModule } from './libs/bull/queue-mail/queue-mail.module';
 import { TaskModule } from './libs/tasks/task.module';
 import { TokenModule } from './libs/token/token.module';
@@ -111,7 +111,7 @@ import { CustomerModule } from './routers/customer/customer.module';
     JwtAuthStrategy,
     {
       provide: APP_INTERCEPTOR,
-      useClass: LoggerInterceptor,
+      useClass: ErrorInterceptor,
     },
     {
       provide: APP_INTERCEPTOR,
