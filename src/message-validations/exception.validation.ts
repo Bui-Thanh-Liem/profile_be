@@ -27,7 +27,7 @@ class Exception {
     return `${object} fail`;
   }
   depend() {
-    return 'The item you want to delete depends on another item, please check again.';
+    return 'The item you want to delete depends on another items, please check again.';
   }
 }
 

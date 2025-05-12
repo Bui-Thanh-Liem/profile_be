@@ -151,18 +151,19 @@ export class KeywordService {
 
   async remove(ids: string[]): Promise<boolean> {
     //
-    const findItems = await this.keywordRepository.find({
-      where: { id: In(ids) },
-    });
+    const items = await this.keywordRepository
+      .createQueryBuilder('keyword')
+      .leftJoinAndSelect('keyword.imageStorages', 'imageStorages')
+      .getMany();
 
     //
-    if (findItems.length !== ids.length) {
+    if (items.length !== ids.length) {
       throw new NotFoundException(Exception.notfound('Keyword to delete'));
     }
 
     // Depends
     await Promise.allSettled(
-      findItems.map((item) => {
+      items.map((item) => {
         this.checkRelations(item, ['imageStorages']); // Check exist relations
         return this.keywordRepository.delete(item.id);
       }),
@@ -174,10 +175,8 @@ export class KeywordService {
   checkRelations(item: KeywordEntity, keyRelations: (keyof KeywordEntity)[]) {
     for (const key of keyRelations) {
       const relation = item[key];
+
       if (Array.isArray(relation) && relation.length > 0) {
-        throw new UnprocessableEntityException(Exception.depend());
-      }
-      if (relation) {
         throw new UnprocessableEntityException(Exception.depend());
       }
     }

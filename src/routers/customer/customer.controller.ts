@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Headers, Param, Patch, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Headers, Param, Patch, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request, Response } from 'express';
 import { Constants, Utils } from 'liemdev-profile-lib';
@@ -10,6 +10,10 @@ import { CustomerService } from './customer.service';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { Customer } from 'src/decorators/customer.decorator';
 import { ResponseSuccess } from 'src/classes/response.class';
+import { CustomerEntity } from './entities/customer.entity';
+import AQueries from 'src/abstracts/AQuery.abstract';
+import { ActiveUser } from 'src/decorators/activeUser.decorator';
+import { TPayloadToken } from 'src/types/TPayloadToken.type';
 
 @Controller(Constants.CONSTANT_ROUTE.CUSTOMER)
 export class CustomerController {
@@ -72,8 +76,9 @@ export class CustomerController {
   }
 
   @Get()
-  findAll() {
-    return this.customerService.findAll();
+  async findAll(@Query() queries: AQueries<CustomerEntity>, @ActiveUser() activeUser: TPayloadToken) {
+    const { items, totalItems } = await this.customerService.findAll({ queries, activeUser });
+    return new ResponseSuccess('Success', { items, totalItems });
   }
 
   @Get(':id')

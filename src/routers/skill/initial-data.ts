@@ -23,4 +23,5 @@ export const skillData: CreateSkillDto[] = [
   { name: 'Redis', image: 'redis-initial.png', progress: 100 },
   { name: 'Docker', image: 'docker-initial.png', progress: 80 },
   { name: 'Nginx', image: 'nginx-initial.png', progress: 80 },
+  { name: 'Deployment', image: 'deployment-initial.png', progress: 80 },
 ];

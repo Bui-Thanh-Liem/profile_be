@@ -1,12 +1,14 @@
 import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ICustomer } from 'src/interfaces/models.interface';
-import { IResponseLogin } from 'src/interfaces/response.interface';
+import { IGetMulti, IResponseLogin } from 'src/interfaces/response.interface';
 import { TokenService } from 'src/libs/token/token.service';
 import { Repository } from 'typeorm';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { CustomerEntity } from './entities/customer.entity';
 import Exception from 'src/message-validations/exception.validation';
+import { IFindAllService } from 'src/interfaces/common.interface';
+import { UtilBuilder } from 'src/utils/Builder.util';
 
 @Injectable()
 export class CustomerService {
@@ -57,8 +59,22 @@ export class CustomerService {
     return { customer: newItem, user: null, token: tokens };
   }
 
-  findAll() {
-    return `This action returns all customer`;
+  async findAll({ queries, activeUser }: IFindAllService<CustomerEntity>): Promise<IGetMulti<CustomerEntity>> {
+    //
+    const queryBuilder = new UtilBuilder<CustomerEntity>(this.customerRepository, {
+      excludeJoin: ['tokens'],
+      // exclude: ['email'],
+    });
+    const { items, totalItems } = await queryBuilder.handleConditionQueries({
+      queries,
+      user: null,
+      searchField: 'fullName',
+    });
+
+    return {
+      items,
+      totalItems,
+    };
   }
 
   async findOneById(id: string): Promise<CustomerEntity> {
