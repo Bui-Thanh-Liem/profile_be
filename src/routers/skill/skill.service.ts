@@ -7,7 +7,7 @@ import {
   OnApplicationBootstrap,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { HandleLocalFileService } from 'src/helpers/services/HandleLocalFile.service';
+import { FileLocalService } from 'src/helpers/services/FileLocal.service';
 import { ICreateService, IUpdateService } from 'src/interfaces/common.interface';
 import { IGetMulti } from 'src/interfaces/response.interface';
 import Exception from 'src/message-validations/exception.validation';
@@ -25,7 +25,7 @@ export class SkillService implements OnApplicationBootstrap {
     @InjectRepository(SkillEntity)
     private skillRepository: Repository<SkillEntity>,
     private userService: UserService,
-    private handleLocalFileService: HandleLocalFileService,
+    private fileLocalService: FileLocalService,
   ) {}
   onApplicationBootstrap() {
     setTimeout(() => {
@@ -59,7 +59,7 @@ export class SkillService implements OnApplicationBootstrap {
       });
       return await this.skillRepository.save(dataCreate);
     } catch (error) {
-      await this.handleLocalFileService.removeByFileNames([filename]);
+      await this.fileLocalService.removeByFileNames([filename]);
       throw error;
     }
   }
@@ -104,7 +104,7 @@ export class SkillService implements OnApplicationBootstrap {
 
       // Kiểm tra nếu có image mới thì xóa cũ, gán mới cho cũ
       if (newFilename) {
-        await this.handleLocalFileService.removeByFileNames([findItem.image]);
+        await this.fileLocalService.removeByFileNames([findItem.image]);
         payload.image = newFilename;
       }
 
@@ -117,7 +117,7 @@ export class SkillService implements OnApplicationBootstrap {
 
       return itemUpdated;
     } catch (error) {
-      await this.handleLocalFileService.removeByFileNames([newFilename]);
+      await this.fileLocalService.removeByFileNames([newFilename]);
       throw error;
     }
   }
@@ -135,7 +135,7 @@ export class SkillService implements OnApplicationBootstrap {
     await Promise.all(
       findItems?.map((item) => {
         try {
-          this.handleLocalFileService.removeByFileNames([item.image]);
+          this.fileLocalService.removeByFileNames([item.image]);
         } catch (error) {
           console.error(`Failed to remove image:::`, error);
         }

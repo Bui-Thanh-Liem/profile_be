@@ -1,6 +1,6 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { HandleLocalFileService } from 'src/helpers/services/HandleLocalFile.service';
+import { FileLocalService } from 'src/helpers/services/FileLocal.service';
 import { ICreateService, IFindAllService, IUpdateService } from 'src/interfaces/common.interface';
 import { IGetMulti } from 'src/interfaces/response.interface';
 import { UtilArray } from 'src/utils/Array.util';
@@ -20,7 +20,7 @@ export class ImageStorageService {
     @InjectRepository(ImageStorageEntity)
     private imageStorageRepository: Repository<ImageStorageEntity>,
     private userService: UserService,
-    private handleLocalFileService: HandleLocalFileService,
+    private fileLocalService: FileLocalService,
     private keywordService: KeywordService,
   ) {}
 
@@ -59,7 +59,7 @@ export class ImageStorageService {
 
       return newItem;
     } catch (error) {
-      await this.handleLocalFileService.removeByFileNames(filenames);
+      await this.fileLocalService.removeByFileNames(filenames);
       throw error;
     }
   }
@@ -93,7 +93,7 @@ export class ImageStorageService {
 
       // Xoá oldFilenames đã tìm được
       if (otherArr.length) {
-        await this.handleLocalFileService.removeByFileNames(otherArr);
+        await this.fileLocalService.removeByFileNames(otherArr);
       }
 
       // Đẩy newFilenames mới vào
@@ -112,7 +112,7 @@ export class ImageStorageService {
 
       return newItem;
     } catch (error) {
-      await this.handleLocalFileService.removeByFileNames(newFilenames);
+      await this.fileLocalService.removeByFileNames(newFilenames);
     }
   }
 
@@ -157,7 +157,7 @@ export class ImageStorageService {
     await Promise.all(
       findItems?.map((item) => {
         try {
-          this.handleLocalFileService.removeByFileNames(item.images);
+          this.fileLocalService.removeByFileNames(item.images);
         } catch (error) {
           console.error(`Failed to remove images:::`, error);
         }

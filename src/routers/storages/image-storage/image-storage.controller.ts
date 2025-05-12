@@ -5,7 +5,7 @@ import { ResponseSuccess } from 'src/classes/response.class';
 import { ActiveUser } from 'src/decorators/activeUser.decorator';
 import { Public } from 'src/decorators/public.decorator';
 import { UploadMultipleFiles } from 'src/decorators/upload-multi-file.decorator';
-import { HandleLocalFileService } from 'src/helpers/services/HandleLocalFile.service';
+import { FileLocalService } from 'src/helpers/services/FileLocal.service';
 import { TPayloadToken } from 'src/types/TPayloadToken.type';
 import { UtilConvert } from 'src/utils/Convert.util';
 import { CreateImageStorageDto } from './dto/create-image-storage.dto';
@@ -19,7 +19,7 @@ export class ImageStorageController {
 
   constructor(
     private readonly imageStorageService: ImageStorageService,
-    private handleLocalFileService: HandleLocalFileService,
+    private fileLocalService: FileLocalService,
   ) {}
 
   @Post()
@@ -54,8 +54,7 @@ export class ImageStorageController {
     @UploadedFiles() images: Express.Multer.File[],
   ) {
     // Nếu images từ client gửi lên có 1 item append thì sẽ có dạng string -> [string]
-    let oldImages = UtilConvert.convertStringToArray(payload.images);
-    oldImages = this.handleLocalFileService.setFileUrlForServer(oldImages);
+    const oldImages = UtilConvert.convertStringToArray(payload.images);
 
     //
     console.log('payload.keywords', payload.keywords);
@@ -81,16 +80,6 @@ export class ImageStorageController {
     // eslint-disable-next-line prefer-const
     let { items, totalItems } = await this.imageStorageService.findAll({
       queries,
-    });
-
-    //  Thêm tiền tố cho url ảnh
-    items = items?.map((item) => {
-      const images = item?.images?.map((img) => this.handleLocalFileService.setFileUrlForClient(img));
-
-      return {
-        ...item,
-        images,
-      };
     });
 
     return new ResponseSuccess('Success', { items, totalItems });

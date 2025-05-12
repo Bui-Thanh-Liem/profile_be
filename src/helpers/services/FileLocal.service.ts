@@ -3,22 +3,9 @@ import { unlink } from 'fs/promises';
 import { join } from 'path';
 
 @Injectable()
-export class HandleLocalFileService {
-  private readonly logger = new Logger(HandleLocalFileService.name);
-  private readonly destination = '/uploads/';
-
-  setFileUrlForClient(filename: string): string {
-    return `${process.env.SERVER_HOST}${this.destination}${filename}`;
-  }
-
-  setFileUrlForServer(filenames: string[]): string[] {
-    const result = [];
-    for (const filename of filenames) {
-      if (!filename.includes(this.destination)) return filenames;
-      result.push(filename.split(this.destination).pop());
-    }
-    return result;
-  }
+export class FileLocalService {
+  private readonly logger = new Logger(FileLocalService.name);
+  private readonly destination = 'uploads';
 
   async removeByFileNames(filenames: string[]): Promise<boolean> {
     if (!filenames.length) return true;
@@ -26,7 +13,7 @@ export class HandleLocalFileService {
       await Promise.all(
         filenames?.map(async (filename) => {
           // const filePath = join(__dirname, '../../public/uploads', filename); chạy trong folder code thực thi
-          const filePath = join(process.cwd(), 'public', 'uploads', filename);
+          const filePath = join(process.cwd(), 'public', this.destination, filename);
           this.logger.debug('removeByFileNames filePath ::: ', filePath);
           try {
             await unlink(filePath);

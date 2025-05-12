@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { HandleLocalFileService } from 'src/helpers/services/HandleLocalFile.service';
+import { FileLocalService } from 'src/helpers/services/FileLocal.service';
 import { ICreateService, IUpdateService } from 'src/interfaces/common.interface';
 import Exception from 'src/message-validations/exception.validation';
 import { isExitItem } from 'src/utils/isPredicates.util';
@@ -17,7 +17,7 @@ export class AboutService {
     @InjectRepository(AboutEntity)
     private aboutRepository: Repository<AboutEntity>,
     private userService: UserService,
-    private handleLocalFileService: HandleLocalFileService,
+    private fileLocalService: FileLocalService,
   ) {
     this.create({ payload: aboutData, activeUser: null });
   }
@@ -62,7 +62,7 @@ export class AboutService {
 
       // Kiểm tra nếu có image mới thì xóa cũ, gán mới cho cũ
       if (newFilename) {
-        await this.handleLocalFileService.removeByFileNames([findItem.image]);
+        await this.fileLocalService.removeByFileNames([findItem.image]);
         payload.image = newFilename;
       }
 
@@ -75,7 +75,7 @@ export class AboutService {
 
       return itemUpdated;
     } catch (error) {
-      await this.handleLocalFileService.removeByFileNames([newFilename]);
+      await this.fileLocalService.removeByFileNames([newFilename]);
     }
   }
 

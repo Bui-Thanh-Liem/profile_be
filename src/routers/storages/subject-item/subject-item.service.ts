@@ -8,12 +8,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { HandleLocalFileService } from 'src/helpers/services/HandleLocalFile.service';
+import { FileLocalService } from 'src/helpers/services/FileLocal.service';
 import { ICreateService, IFindAllService, IUpdateService } from 'src/interfaces/common.interface';
 import { IGetMulti } from 'src/interfaces/response.interface';
 import Exception from 'src/message-validations/exception.validation';
 import { UserService } from 'src/routers/user/user.service';
-import { UtilArray } from 'src/utils/Array.util';
 import { UtilBuilder } from 'src/utils/Builder.util';
 import { DeleteResult, In, Repository } from 'typeorm';
 import { KeywordEntity } from '../keyword/entities/keyword.entity';
@@ -30,7 +29,7 @@ export class SubjectItemService {
   constructor(
     private userService: UserService,
     private keywordService: KeywordService,
-    private handleLocalFileService: HandleLocalFileService,
+    private fileLocalService: FileLocalService,
 
     @Inject(forwardRef(() => SubjectGroupService))
     private subjectGroupService: SubjectGroupService,
@@ -72,7 +71,7 @@ export class SubjectItemService {
       });
       return await this.subjectItemRepository.save(dataCreate);
     } catch (error) {
-      await this.handleLocalFileService.removeByFileNames([filename]);
+      await this.fileLocalService.removeByFileNames([filename]);
       throw error;
     }
   }
@@ -85,7 +84,6 @@ export class SubjectItemService {
   }: IUpdateService<UpdateSubjectItemDto>): Promise<SubjectItemEntity> {
     const { image, keywords } = payload;
     const newFilenames = newImages?.map((img) => img?.filename) || [];
-    console.log('newImages::', newImages);
 
     try {
       const editor = await this.userService.findOneById(activeUser.userId);
@@ -99,20 +97,10 @@ export class SubjectItemService {
         throw new NotFoundException(Exception.notfound('Image subject item'));
       }
 
-      // Tìm oldFilenames đã xoá đi
-      const otherArr = UtilArray.findItemNotOtherItem({
-        thanArr: [findItem.image],
-        lessArr: [image],
-      });
-
-      // Xoá oldFilenames đã tìm được
-      if (otherArr.length) {
-        await this.handleLocalFileService.removeByFileNames(otherArr);
-      }
-
       // Đẩy newFilenames mới vào
       if (newFilenames.length > 0) {
         payload.image = newFilenames[0];
+        await this.fileLocalService.removeByFileNames(image);
       }
 
       //
@@ -128,7 +116,7 @@ export class SubjectItemService {
 
       return newItem;
     } catch (error) {
-      await this.handleLocalFileService.removeByFileNames(newFilenames);
+      await this.fileLocalService.removeByFileNames(newFilenames);
     }
   }
 
@@ -187,7 +175,7 @@ export class SubjectItemService {
     await Promise.all(
       findItems?.map((item) => {
         try {
-          this.handleLocalFileService.removeByFileNames([item.image]);
+          this.fileLocalService.removeByFileNames([item.image]);
         } catch (error) {
           console.error(`Failed to remove image:::`, error);
         }

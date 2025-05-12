@@ -1,25 +1,19 @@
-import { Body, Controller, Delete, Get, Logger, Param, Patch, Post, Req, UploadedFile } from '@nestjs/common';
-import { Request } from 'express';
+import { Body, Controller, Delete, Get, Logger, Param, Patch, Post, UploadedFile } from '@nestjs/common';
 import { Constants } from 'liemdev-profile-lib';
 import { ResponseSuccess } from 'src/classes/response.class';
+import { ActiveUser } from 'src/decorators/activeUser.decorator';
 import { Public } from 'src/decorators/public.decorator';
 import { UploadSingleFile } from 'src/decorators/upload-single-file.decorator';
-import { HandleLocalFileService } from 'src/helpers/services/HandleLocalFile.service';
+import { TPayloadToken } from 'src/types/TPayloadToken.type';
 import { UtilConvert } from 'src/utils/Convert.util';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { SkillService } from './skill.service';
-import { TPayloadToken } from 'src/types/TPayloadToken.type';
-import { ActiveUser } from 'src/decorators/activeUser.decorator';
 
 @Controller(Constants.CONSTANT_ROUTE.SKILL)
 export class SkillController {
   private readonly logger = new Logger(SkillController.name);
-
-  constructor(
-    private readonly skillService: SkillService,
-    private handleLocalFileService: HandleLocalFileService,
-  ) {}
+  constructor(private readonly skillService: SkillService) {}
 
   @Post()
   @UploadSingleFile({
@@ -52,8 +46,7 @@ export class SkillController {
     @UploadedFile() newImage: Express.Multer.File,
   ) {
     // Nếu images từ client gửi lên có 1 item append thì sẽ có dạng string -> [string]
-    let oldImage = UtilConvert.convertStringToArray(payload.image);
-    oldImage = this.handleLocalFileService.setFileUrlForServer(oldImage);
+    const oldImage = UtilConvert.convertStringToArray(payload.image);
 
     //
     const result = await this.skillService.update({
@@ -71,17 +64,8 @@ export class SkillController {
   @Public()
   async findAll() {
     // eslint-disable-next-line prefer-const
-    let { items, totalItems } = await this.skillService.findAll();
-
-    //  Thêm tiền tố cho url ảnh
-    items = items?.map((item) => {
-      const image = this.handleLocalFileService.setFileUrlForClient(item.image);
-      return {
-        ...item,
-        image,
-      };
-    });
-    return new ResponseSuccess('Success', { items, totalItems });
+    const result = await this.skillService.findAll();
+    return new ResponseSuccess('Success', result);
   }
 
   @Get(':id')

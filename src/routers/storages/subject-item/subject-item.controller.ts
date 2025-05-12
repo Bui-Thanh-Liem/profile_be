@@ -1,38 +1,21 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Logger,
-  Param,
-  Patch,
-  Post,
-  Query,
-  UploadedFile,
-  UploadedFiles,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Logger, Param, Patch, Post, Query, UploadedFile } from '@nestjs/common';
 import { Constants } from 'liemdev-profile-lib';
 import AQueries from 'src/abstracts/AQuery.abstract';
 import { ResponseSuccess } from 'src/classes/response.class';
 import { ActiveUser } from 'src/decorators/activeUser.decorator';
 import { Public } from 'src/decorators/public.decorator';
-import { UploadMultipleFiles } from 'src/decorators/upload-multi-file.decorator';
-import { HandleLocalFileService } from 'src/helpers/services/HandleLocalFile.service';
+import { UploadSingleFile } from 'src/decorators/upload-single-file.decorator';
 import { TPayloadToken } from 'src/types/TPayloadToken.type';
 import { UtilConvert } from 'src/utils/Convert.util';
 import { CreateSubjectItemDto } from './dto/create-subject-item.dto';
 import { UpdateSubjectItemDto } from './dto/update-subject-item.dto';
 import { SubjectItemEntity } from './entities/subject-item.entity';
 import { SubjectItemService } from './subject-item.service';
-import { UploadSingleFile } from 'src/decorators/upload-single-file.decorator';
 
 @Controller(Constants.CONSTANT_ROUTE.SUBJECT_ITEM)
 export class SubjectItemController {
   private readonly logger = new Logger(SubjectItemController.name);
-  constructor(
-    private readonly subjectItemService: SubjectItemService,
-    private handleLocalFileService: HandleLocalFileService,
-  ) {}
+  constructor(private readonly subjectItemService: SubjectItemService) {}
 
   @Post()
   @UploadSingleFile({
@@ -68,8 +51,9 @@ export class SubjectItemController {
     @UploadedFile() image: Express.Multer.File,
   ) {
     // Nếu images từ client gửi lên có 1 item append thì sẽ có dạng string -> [string]
-    let oldImages = UtilConvert.convertStringToArray([payload.image]);
-    oldImages = this.handleLocalFileService.setFileUrlForServer(oldImages);
+    console.log('payload:::', payload);
+
+    const oldImages = UtilConvert.convertStringToArray([payload.image]);
 
     //
     console.log('payload.keywords', payload.keywords);
@@ -93,15 +77,6 @@ export class SubjectItemController {
     // eslint-disable-next-line prefer-const
     let { items, totalItems } = await this.subjectItemService.findAll({
       queries,
-    });
-
-    //  Thêm tiền tố cho url ảnh
-    items = items?.map((item) => {
-      const image = this.handleLocalFileService.setFileUrlForClient(item.image);
-      return {
-        ...item,
-        image,
-      };
     });
 
     return new ResponseSuccess('Success', { items, totalItems });

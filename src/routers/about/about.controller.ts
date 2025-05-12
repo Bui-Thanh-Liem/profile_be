@@ -1,31 +1,22 @@
-import { Body, Controller, Get, Patch, Req, UploadedFile } from '@nestjs/common';
-import { Request } from 'express';
+import { Body, Controller, Get, Patch, UploadedFile } from '@nestjs/common';
 import { Constants } from 'liemdev-profile-lib';
 import { ResponseSuccess } from 'src/classes/response.class';
+import { ActiveUser } from 'src/decorators/activeUser.decorator';
 import { Public } from 'src/decorators/public.decorator';
 import { UploadSingleFile } from 'src/decorators/upload-single-file.decorator';
-import { HandleLocalFileService } from 'src/helpers/services/HandleLocalFile.service';
+import { TPayloadToken } from 'src/types/TPayloadToken.type';
 import { UtilConvert } from 'src/utils/Convert.util';
 import { AboutService } from './about.service';
 import { UpdateAboutDto } from './dto/update-about.dto';
-import { TPayloadToken } from 'src/types/TPayloadToken.type';
-import { ActiveUser } from 'src/decorators/activeUser.decorator';
 
 @Controller(Constants.CONSTANT_ROUTE.ABOUT)
 export class AboutController {
-  constructor(
-    private readonly aboutService: AboutService,
-    private handleLocalFileService: HandleLocalFileService,
-  ) {}
+  constructor(private readonly aboutService: AboutService) {}
 
   @Get()
   @Public()
   async find() {
     const result = await this.aboutService.find();
-    console.log('result :::', result);
-
-    //  Thêm tiền tố cho url ảnh
-    result.image = this.handleLocalFileService.setFileUrlForClient(result.image);
     return new ResponseSuccess('Success', result);
   }
 
@@ -37,8 +28,7 @@ export class AboutController {
     @UploadedFile() newImage: Express.Multer.File,
   ) {
     // Nếu images từ client gửi lên có 1 item append thì sẽ có dạng string -> [string]
-    let oldImage = UtilConvert.convertStringToArray(payload.image);
-    oldImage = this.handleLocalFileService.setFileUrlForServer(oldImage);
+    const oldImage = UtilConvert.convertStringToArray(payload.image);
 
     //
     const [text] = UtilConvert.convertStringToArrayBySplit(payload.text as any, ',') as any;
