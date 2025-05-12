@@ -11,11 +11,14 @@ export class SubjectItemEntity extends ABaseEntity {
   @Column()
   name: string;
 
-  @Column('text')
-  content: string;
-
   @Column({ unique: true })
   slug: string;
+
+  @Column('text')
+  desc: string;
+
+  @Column('text')
+  code: string;
 
   @Column()
   image: string;

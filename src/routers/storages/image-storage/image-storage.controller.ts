@@ -24,18 +24,9 @@ export class ImageStorageController {
 
   @Post()
   @UploadMultipleFiles({
-    label: {
-      type: 'string',
-      required: ['label is required'],
-    },
-    desc: {
-      type: 'string',
-      required: ['desc is required'],
-    },
-    keywords: {
-      type: 'string',
-      required: ['keyword is required'],
-    },
+    label: { type: 'string', required: ['label is required'] },
+    desc: { type: 'string' },
+    keywords: { type: 'array', items: { type: 'string' }, required: ['keywords is required'] },
   })
   async create(
     @ActiveUser() activeUser: TPayloadToken,

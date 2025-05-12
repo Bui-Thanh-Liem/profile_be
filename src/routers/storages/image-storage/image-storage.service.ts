@@ -71,7 +71,7 @@ export class ImageStorageService {
     activeUser,
   }: IUpdateService<UpdateImageStorageDto>): Promise<ImageStorageEntity> {
     const { images, keywords } = payload;
-    const newFilenames = newImages?.map((img) => img.filename) || [];
+    const newFilenames = newImages?.map((img) => img?.filename) || [];
 
     try {
       const editor = await this.userService.findOneById(activeUser.userId);

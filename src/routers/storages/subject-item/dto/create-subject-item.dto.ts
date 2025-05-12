@@ -11,19 +11,16 @@ export class CreateSubjectItemDto implements Partial<ISubjectItem> {
 
   @ApiProperty()
   @IsNotEmpty()
-  content: string;
-
-  @ApiProperty()
-  // @IsNotEmpty({ message: Validation.empty('Image') })
-  image: any;
+  desc: string;
 
   @ApiProperty()
   @IsOptional()
-  // @IsUUID(undefined, { each: true })
-  groups?: string[];
+  code: string;
 
   @ApiProperty()
-  // @IsNotEmpty({ message: Validation.empty('Keywords') })
-  @IsOptional()
+  @IsNotEmpty({ message: Validation.empty('Keywords') })
   keywords?: string[];
+
+  @ApiProperty()
+  image: any;
 }
