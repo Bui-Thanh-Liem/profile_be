@@ -79,11 +79,11 @@ export class SubjectItemService {
   async update({
     id,
     payload,
-    newImages,
+    newImage,
     activeUser,
   }: IUpdateService<UpdateSubjectItemDto>): Promise<SubjectItemEntity> {
-    const { image, keywords } = payload;
-    const newFilenames = newImages?.map((img) => img?.filename) || [];
+    const { keywords } = payload;
+    const newFilename = newImage?.filename;
 
     try {
       const editor = await this.userService.findOneById(activeUser.userId);
@@ -97,10 +97,10 @@ export class SubjectItemService {
         throw new NotFoundException(Exception.notfound('Image subject item'));
       }
 
-      // Đẩy newFilenames mới vào
-      if (newFilenames.length > 0) {
-        payload.image = newFilenames[0];
-        await this.fileLocalService.removeByFileNames(image);
+      // Kiểm tra nếu có image mới thì xóa cũ, gán mới cho cũ
+      if (newFilename) {
+        await this.fileLocalService.removeByFileNames([findItem.image]);
+        payload.image = newFilename;
       }
 
       //
@@ -116,7 +116,7 @@ export class SubjectItemService {
 
       return newItem;
     } catch (error) {
-      await this.fileLocalService.removeByFileNames(newFilenames);
+      await this.fileLocalService.removeByFileNames([newFilename]);
     }
   }
 

@@ -24,7 +24,6 @@ import { RoleGroupModule } from './routers/role-group/role-group.module';
 import { RoleModule } from './routers/role/role.module';
 import { SendMailModule } from './routers/send-mail/send-mail.module';
 import { SkillModule } from './routers/skill/skill.module';
-import { ImageStorageModule } from './routers/storages/image-storage/image-storage.module';
 import { KeyWordModule } from './routers/storages/keyword/keyword.module';
 import { SubjectGroupModule } from './routers/storages/subject-group/subject-group.module';
 import { SubjectItemModule } from './routers/storages/subject-item/subject-item.module';
@@ -98,7 +97,6 @@ import { CustomerModule } from './routers/customer/customer.module';
     RoleModule,
     TokenModule,
     RoleGroupModule,
-    ImageStorageModule,
     KeyWordModule,
     SendMailModule,
     SubjectGroupModule,

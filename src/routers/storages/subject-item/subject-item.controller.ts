@@ -50,11 +50,6 @@ export class SubjectItemController {
     @ActiveUser() activeUser: TPayloadToken,
     @UploadedFile() image: Express.Multer.File,
   ) {
-    // Nếu images từ client gửi lên có 1 item append thì sẽ có dạng string -> [string]
-    console.log('payload:::', payload);
-
-    const oldImages = UtilConvert.convertStringToArray([payload.image]);
-
     //
     console.log('payload.keywords', payload.keywords);
     const keywords = UtilConvert.convertStringToArrayBySplit(payload.keywords as any, ',');
@@ -62,9 +57,9 @@ export class SubjectItemController {
     //
     const result = await this.subjectItemService.update({
       id,
-      newImages: [image],
+      newImage: image,
       activeUser,
-      payload: { ...payload, keywords: keywords, image: oldImages[0] },
+      payload: { ...payload, keywords: keywords },
     });
 
     //
@@ -74,12 +69,13 @@ export class SubjectItemController {
   @Get()
   @Public()
   async findAll(@Query() queries: AQueries<SubjectItemEntity>) {
-    // eslint-disable-next-line prefer-const
-    let { items, totalItems } = await this.subjectItemService.findAll({
+    console.log('queries:::', queries);
+
+    const results = await this.subjectItemService.findAll({
       queries,
     });
 
-    return new ResponseSuccess('Success', { items, totalItems });
+    return new ResponseSuccess('Success', results);
   }
 
   @Get(':id')

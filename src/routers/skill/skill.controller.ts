@@ -5,7 +5,6 @@ import { ActiveUser } from 'src/decorators/activeUser.decorator';
 import { Public } from 'src/decorators/public.decorator';
 import { UploadSingleFile } from 'src/decorators/upload-single-file.decorator';
 import { TPayloadToken } from 'src/types/TPayloadToken.type';
-import { UtilConvert } from 'src/utils/Convert.util';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { SkillService } from './skill.service';
@@ -45,15 +44,12 @@ export class SkillController {
     @Body() payload: UpdateSkillDto,
     @UploadedFile() newImage: Express.Multer.File,
   ) {
-    // Nếu images từ client gửi lên có 1 item append thì sẽ có dạng string -> [string]
-    const oldImage = UtilConvert.convertStringToArray(payload.image);
-
     //
     const result = await this.skillService.update({
       id,
       newImage,
       activeUser,
-      payload: { ...payload, image: oldImage[0] },
+      payload: { ...payload },
     });
 
     //

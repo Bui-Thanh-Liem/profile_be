@@ -153,7 +153,7 @@ export class KeywordService {
     //
     const items = await this.keywordRepository
       .createQueryBuilder('keyword')
-      .leftJoinAndSelect('keyword.imageStorages', 'imageStorages')
+      .leftJoinAndSelect('keyword.subjectItems', 'subjectItems')
       .getMany();
 
     //
@@ -164,7 +164,7 @@ export class KeywordService {
     // Depends
     await Promise.allSettled(
       items.map((item) => {
-        this.checkRelations(item, ['imageStorages']); // Check exist relations
+        this.checkRelations(item, ['subjectItems']); // Check exist relations
         return this.keywordRepository.delete(item.id);
       }),
     );
