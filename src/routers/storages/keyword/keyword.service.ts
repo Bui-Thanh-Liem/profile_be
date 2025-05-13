@@ -75,14 +75,6 @@ export class KeywordService {
       .createQueryBuilder('keyword')
       .leftJoin('keyword.subjectItems', 'subjectItem') // 👈 alias đúng là 'subjectItem'
       .where('subjectItem.type = :type', { type: type })
-      .orWhere((qb) => {
-        return `EXISTS ${qb
-          .subQuery()
-          .select('1')
-          .from('image_storage_keyword', 'image') // Bảng image_storage_keyword
-          .where('image.keyword_id = keyword.id') // Kiểm tra imageStorage có liên kết với keyword
-          .getQuery()}`;
-      })
       .getMany();
     const totalItems = await this.keywordRepository.count();
 
