@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { ISubjectItem } from 'src/interfaces/models.interface';
+import { IKnowledge } from 'src/interfaces/models.interface';
 import Validation from '../../../../message-validations/message.validation';
 
-export class CreateSubjectItemDto implements Partial<ISubjectItem> {
+export class CreateKnowledgeDto implements Partial<IKnowledge> {
   @ApiProperty()
   @IsNotEmpty({ message: Validation.empty('Name') })
   @IsString()

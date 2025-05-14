@@ -25,8 +25,7 @@ import { RoleModule } from './routers/role/role.module';
 import { SendMailModule } from './routers/send-mail/send-mail.module';
 import { SkillModule } from './routers/skill/skill.module';
 import { KeyWordModule } from './routers/storages/keyword/keyword.module';
-import { SubjectGroupModule } from './routers/storages/subject-group/subject-group.module';
-import { SubjectItemModule } from './routers/storages/subject-item/subject-item.module';
+import { KnowledgeModule } from './routers/storages/knowledge/knowledge.module';
 import { UserModule } from './routers/user/user.module';
 import { JwtAuthStrategy } from './strategies/auth.strategy';
 import { CustomerModule } from './routers/customer/customer.module';
@@ -101,8 +100,7 @@ import { AppService } from './app.service';
     RoleGroupModule,
     KeyWordModule,
     SendMailModule,
-    SubjectGroupModule,
-    SubjectItemModule,
+    KnowledgeModule,
     AboutModule,
     SkillModule,
     LikeModule,

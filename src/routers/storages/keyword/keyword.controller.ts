@@ -36,9 +36,9 @@ export class KeyWordController {
 
   @Public()
   @Get('type/:type')
-  async findAllByTypeSubject(@Param('type') type: Enums.ETypeSubject) {
-    this.logger.debug(`findAllByTypeSubject ::: ${JSON.stringify(type)}`);
-    const result = await this.keywordService.findAllByTypeSubject({ type });
+  async findAllByTypeKnowledge(@Param('type') type: Enums.ETypeKnowledge) {
+    this.logger.debug(`findAllByTypeKnowledge ::: ${JSON.stringify(type)}`);
+    const result = await this.keywordService.findAllByTypeKnowledge({ type });
     return new ResponseSuccess('Success', result);
   }
 

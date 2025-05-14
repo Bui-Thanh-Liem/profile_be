@@ -4,10 +4,10 @@ import { ILike } from 'src/interfaces/models.interface';
 import Validation from 'src/message-validations/message.validation';
 
 export class CreateLikeDto implements Partial<ILike> {
-  @ApiProperty({ default: 'subjectItem-id' })
-  @IsNotEmpty({ message: Validation.empty('subjectItemId') })
-  @IsUUID('4', { message: 'SubjectItemId required uuid' })
-  subjectItemId?: string;
+  @ApiProperty({ default: 'knowledge-id' })
+  @IsNotEmpty({ message: Validation.empty('knowledgeId') })
+  @IsUUID('4', { message: 'KnowledgeId required uuid' })
+  knowledgeId?: string;
 
   @ApiProperty({ default: 'customer-id' })
   @IsNotEmpty({ message: Validation.empty('customerId') })

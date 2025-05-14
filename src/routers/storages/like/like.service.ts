@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CustomerService } from 'src/routers/customer/customer.service';
+import { Repository } from 'typeorm';
+import { KnowledgeService } from '../knowledge/knowledge.service';
 import { CreateLikeDto } from './dto/create-like.dto';
 import { UpdateLikeDto } from './dto/update-like.dto';
-import { InjectRepository } from '@nestjs/typeorm';
 import { LikeEntity } from './entities/like.entity';
-import { Repository } from 'typeorm';
-import { CustomerService } from 'src/routers/customer/customer.service';
-import { SubjectItemService } from '../subject-item/subject-item.service';
 
 @Injectable()
 export class LikeService {
@@ -15,19 +15,19 @@ export class LikeService {
     @InjectRepository(LikeEntity)
     private likeRepository: Repository<LikeEntity>,
     private customerService: CustomerService,
-    private subjectItemService: SubjectItemService,
+    private knowledgeService: KnowledgeService,
   ) {}
 
   async create(payload: CreateLikeDto) {
     //
     const customer = await this.customerService.findOneById(payload.customerId);
-    const subjectItem = await this.subjectItemService.findOneById(payload.subjectItemId);
+    const knowledge = await this.knowledgeService.findOneById(payload.knowledgeId);
 
     //
     const dataCreate = this.likeRepository.create({
       ...payload,
       customerId: customer,
-      subjectItemId: subjectItem,
+      knowledgeId: knowledge,
       createdBy: null,
     });
     const newItem = await this.likeRepository.save(dataCreate);

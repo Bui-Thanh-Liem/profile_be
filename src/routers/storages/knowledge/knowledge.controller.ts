@@ -7,16 +7,15 @@ import { Public } from 'src/decorators/public.decorator';
 import { UploadSingleFile } from 'src/decorators/upload-single-file.decorator';
 import { TPayloadToken } from 'src/types/TPayloadToken.type';
 import { UtilConvert } from 'src/utils/Convert.util';
-import { CreateSubjectItemDto } from './dto/create-subject-item.dto';
-import { UpdateSubjectItemDto } from './dto/update-subject-item.dto';
-import { SubjectItemEntity } from './entities/subject-item.entity';
-import { SubjectItemService } from './subject-item.service';
-import { Customer } from 'src/decorators/customer.decorator';
+import { CreateKnowledgeDto } from './dto/create-knowledge.dto';
+import { UpdateKnowledgeDto } from './dto/update-knowledge.dto';
+import { KnowledgeEntity } from './entities/knowledge.entity';
+import { KnowledgeService } from './knowledge.service';
 
-@Controller(Constants.CONSTANT_ROUTE.SUBJECT_ITEM)
-export class SubjectItemController {
-  private readonly logger = new Logger(SubjectItemController.name);
-  constructor(private readonly subjectItemService: SubjectItemService) {}
+@Controller(Constants.CONSTANT_ROUTE.KNOWLEDGE)
+export class KnowledgeController {
+  private readonly logger = new Logger(KnowledgeController.name);
+  constructor(private readonly knowledgeService: KnowledgeService) {}
 
   @Post()
   @UploadSingleFile({
@@ -29,12 +28,12 @@ export class SubjectItemController {
   async create(
     @ActiveUser() activeUser: TPayloadToken,
     @UploadedFile() image: Express.Multer.File,
-    @Body() payload: CreateSubjectItemDto,
+    @Body() payload: CreateKnowledgeDto,
   ) {
     //
     const keywords = UtilConvert.convertStringToArrayBySplit(payload.keywords as any, ',');
 
-    const result = await this.subjectItemService.create({
+    const result = await this.knowledgeService.create({
       payload: { ...payload, image, keywords },
       activeUser,
     });
@@ -47,7 +46,7 @@ export class SubjectItemController {
   @UploadSingleFile()
   async update(
     @Param('id') id: string,
-    @Body() payload: UpdateSubjectItemDto,
+    @Body() payload: UpdateKnowledgeDto,
     @ActiveUser() activeUser: TPayloadToken,
     @UploadedFile() image: Express.Multer.File,
   ) {
@@ -56,7 +55,7 @@ export class SubjectItemController {
     const keywords = UtilConvert.convertStringToArrayBySplit(payload.keywords as any, ',');
 
     //
-    const result = await this.subjectItemService.update({
+    const result = await this.knowledgeService.update({
       id,
       newImage: image,
       activeUser,
@@ -68,9 +67,9 @@ export class SubjectItemController {
   }
 
   @Get()
-  @Customer()
-  async findAll(@Query() queries: AQueries<SubjectItemEntity>) {
-    const results = await this.subjectItemService.findAll({
+  @Public()
+  async findAll(@Query() queries: AQueries<KnowledgeEntity>) {
+    const results = await this.knowledgeService.findAll({
       queries,
     });
 
@@ -78,15 +77,15 @@ export class SubjectItemController {
   }
 
   @Get(':id')
-  @Customer()
+  @Public()
   async findOne(@Param('id') id: string) {
-    const result = await this.subjectItemService.findOneById(id);
+    const result = await this.knowledgeService.findOneById(id);
     return new ResponseSuccess('Success', result);
   }
 
   @Delete()
   async remove(@Body() ids: string[]) {
-    const result = await this.subjectItemService.remove(ids);
+    const result = await this.knowledgeService.remove(ids);
     return new ResponseSuccess('Success', result);
   }
 }

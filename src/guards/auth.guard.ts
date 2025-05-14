@@ -17,7 +17,7 @@ export class JwtAuthGuard extends AuthGuard('jwt-auth') {
   }
 
   // được gọi trước khi request được xử lý - 1
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     this.logger.debug('Run 2');
     const isPublic = this.reflector.get<boolean>('isPublic', context.getHandler());
     const isCustomer = this.reflector.get<boolean>('isCustomer', context.getHandler());
@@ -39,16 +39,15 @@ export class JwtAuthGuard extends AuthGuard('jwt-auth') {
         throw new UnauthorizedException('No token provided');
       }
 
-      //
-      this.tokenService
-        .verifyAccessToken(tokenCustomer)
-        .then((decoded) => {
-          request['customer'] = decoded;
-        })
-        .catch((error) => {
-          throw new UnauthorizedException('Invalid or expired token');
-        });
-      return true;
+      try {
+        // Sử dụng await để đợi promise hoàn thành
+        const decoded = await this.tokenService.verifyAccessToken(tokenCustomer);
+        request['customer'] = decoded;
+        return true;
+      } catch (error) {
+        this.logger.error('Token verification failed', error);
+        throw new UnauthorizedException('Invalid or expired token');
+      }
     }
 
     // 1.Xác thực theo strategy jwt-auth (Passport) cho phần mặc định

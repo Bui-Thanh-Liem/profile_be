@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IResultRefreshToken, IResultSignToken } from 'src/interfaces/result.interface';
@@ -159,9 +159,13 @@ export class TokenService {
   }
 
   async verifyAccessToken<T extends object>(token: string): Promise<T> {
-    return await this.jwtService.verifyAsync(token, {
-      secret: process.env.SECRET_ACCESS_KEY,
-    });
+    try {
+      return await this.jwtService.verifyAsync(token, {
+        secret: process.env.SECRET_ACCESS_KEY,
+      });
+    } catch (error) {
+      throw new UnauthorizedException(error);
+    }
   }
 
   async verifyRefreshToken(token: string): Promise<TPayloadToken> {

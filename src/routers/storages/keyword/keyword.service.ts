@@ -69,12 +69,12 @@ export class KeywordService {
     };
   }
 
-  async findAllByTypeSubject({ type }: { type: Enums.ETypeSubject }): Promise<IGetMulti<KeywordEntity>> {
+  async findAllByTypeKnowledge({ type }: { type: Enums.ETypeKnowledge }): Promise<IGetMulti<KeywordEntity>> {
     //
     const items = await this.keywordRepository
       .createQueryBuilder('keyword')
-      .leftJoin('keyword.subjectItems', 'subjectItem') // 👈 alias đúng là 'subjectItem'
-      .where('subjectItem.type = :type', { type: type })
+      .leftJoin('keyword.knowledge', 'knowledge') // 👈 alias đúng là 'knowledge'
+      .where('knowledge.type = :type', { type: type })
       .getMany();
     const totalItems = await this.keywordRepository.count();
 
@@ -145,7 +145,7 @@ export class KeywordService {
     //
     const items = await this.keywordRepository
       .createQueryBuilder('keyword')
-      .leftJoinAndSelect('keyword.subjectItems', 'subjectItems')
+      .leftJoinAndSelect('keyword.knowledge', 'knowledge')
       .getMany();
 
     //
@@ -156,7 +156,7 @@ export class KeywordService {
     // Depends
     await Promise.allSettled(
       items.map((item) => {
-        this.checkRelations(item, ['subjectItems']); // Check exist relations
+        this.checkRelations(item, ['knowledge']); // Check exist relations
         return this.keywordRepository.delete(item.id);
       }),
     );

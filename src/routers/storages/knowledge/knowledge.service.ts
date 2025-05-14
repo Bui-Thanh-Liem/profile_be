@@ -1,12 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  forwardRef,
-  Inject,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FileLocalService } from 'src/helpers/services/FileLocal.service';
 import { ICreateService, IFindAllService, IUpdateService } from 'src/interfaces/common.interface';
@@ -17,28 +9,24 @@ import { UtilBuilder } from 'src/utils/Builder.util';
 import { DeleteResult, In, Repository } from 'typeorm';
 import { KeywordEntity } from '../keyword/entities/keyword.entity';
 import { KeywordService } from '../keyword/keyword.service';
-import { SubjectGroupService } from '../subject-group/subject-group.service';
-import { CreateSubjectItemDto } from './dto/create-subject-item.dto';
-import { UpdateSubjectItemDto } from './dto/update-subject-item.dto';
-import { SubjectItemEntity } from './entities/subject-item.entity';
+import { CreateKnowledgeDto } from './dto/create-knowledge.dto';
+import { UpdateKnowledgeDto } from './dto/update-knowledge.dto';
+import { KnowledgeEntity } from './entities/knowledge.entity';
 
 @Injectable()
-export class SubjectItemService {
-  private readonly logger = new Logger(SubjectItemService.name);
+export class KnowledgeService {
+  private readonly logger = new Logger(KnowledgeService.name);
 
   constructor(
     private userService: UserService,
     private keywordService: KeywordService,
     private fileLocalService: FileLocalService,
 
-    @Inject(forwardRef(() => SubjectGroupService))
-    private subjectGroupService: SubjectGroupService,
-
-    @InjectRepository(SubjectItemEntity)
-    private subjectItemRepository: Repository<SubjectItemEntity>,
+    @InjectRepository(KnowledgeEntity)
+    private knowledgeRepository: Repository<KnowledgeEntity>,
   ) {}
 
-  async create({ payload, activeUser }: ICreateService<CreateSubjectItemDto>) {
+  async create({ payload, activeUser }: ICreateService<CreateKnowledgeDto>) {
     const { keywords, name } = payload;
     const filename = (payload.image as Express.Multer.File).filename;
 
@@ -51,9 +39,9 @@ export class SubjectItemService {
       }
 
       //
-      const findItem = await this.subjectItemRepository.findOneBy({ name });
+      const findItem = await this.knowledgeRepository.findOneBy({ name });
       if (findItem) {
-        throw new ConflictException(Exception.exists('Name subject item'));
+        throw new ConflictException(Exception.exists('Name knowledge'));
       }
 
       //
@@ -63,25 +51,20 @@ export class SubjectItemService {
       }
 
       //
-      const dataCreate = this.subjectItemRepository.create({
+      const dataCreate = this.knowledgeRepository.create({
         ...payload,
         image: filename,
         keywords: findKeywords,
         createdBy: creator,
       });
-      return await this.subjectItemRepository.save(dataCreate);
+      return await this.knowledgeRepository.save(dataCreate);
     } catch (error) {
       await this.fileLocalService.removeByFileNames([filename]);
       throw error;
     }
   }
 
-  async update({
-    id,
-    payload,
-    newImage,
-    activeUser,
-  }: IUpdateService<UpdateSubjectItemDto>): Promise<SubjectItemEntity> {
+  async update({ id, payload, newImage, activeUser }: IUpdateService<UpdateKnowledgeDto>): Promise<KnowledgeEntity> {
     const { keywords } = payload;
     const newFilename = newImage?.filename;
 
@@ -92,9 +75,9 @@ export class SubjectItemService {
       }
 
       // check exist
-      const findItem = await this.subjectItemRepository.findOneBy({ id });
+      const findItem = await this.knowledgeRepository.findOneBy({ id });
       if (!findItem) {
-        throw new NotFoundException(Exception.notfound('Image subject item'));
+        throw new NotFoundException(Exception.notfound('Image knowledge'));
       }
 
       // Kiểm tra nếu có image mới thì xóa cũ, gán mới cho cũ
@@ -107,7 +90,7 @@ export class SubjectItemService {
       const findKeywords = await this.keywordService.findManyByIds(keywords);
 
       //
-      const newItem = await this.subjectItemRepository.save({
+      const newItem = await this.knowledgeRepository.save({
         ...findItem,
         ...payload,
         keywords: findKeywords,
@@ -120,9 +103,9 @@ export class SubjectItemService {
     }
   }
 
-  async findAll({ queries }: IFindAllService<SubjectItemEntity>): Promise<IGetMulti<SubjectItemEntity>> {
+  async findAll({ queries }: IFindAllService<KnowledgeEntity>): Promise<IGetMulti<KnowledgeEntity>> {
     try {
-      const queryBuilder = new UtilBuilder<SubjectItemEntity>(this.subjectItemRepository);
+      const queryBuilder = new UtilBuilder<KnowledgeEntity>(this.knowledgeRepository);
       const { items, totalItems } = await queryBuilder.handleConditionQueries({
         queries,
         user: null,
@@ -138,25 +121,25 @@ export class SubjectItemService {
     }
   }
 
-  async findManyByIds(ids: string[]): Promise<SubjectItemEntity[]> {
+  async findManyByIds(ids: string[]): Promise<KnowledgeEntity[]> {
     //
-    const findItems = await this.subjectItemRepository.findBy({
+    const findItems = await this.knowledgeRepository.findBy({
       id: In(ids),
     });
 
     //
     if (findItems.length !== ids.length) {
-      throw new NotFoundException(Exception.notfound('Subject item'));
+      throw new NotFoundException(Exception.notfound('Knowledge'));
     }
 
     //
     return findItems;
   }
 
-  async findOneById(id: string): Promise<SubjectItemEntity> {
-    const findItem = await this.subjectItemRepository.findOneBy({ id });
+  async findOneById(id: string): Promise<KnowledgeEntity> {
+    const findItem = await this.knowledgeRepository.findOneBy({ id });
     if (!findItem) {
-      throw new NotFoundException(Exception.notfound('Subject item'));
+      throw new NotFoundException(Exception.notfound('Knowledge'));
     }
 
     return findItem;
@@ -164,11 +147,11 @@ export class SubjectItemService {
 
   async remove(ids: string[]): Promise<DeleteResult[]> {
     //
-    const findItems = await this.subjectItemRepository.findBy({ id: In(ids) });
+    const findItems = await this.knowledgeRepository.findBy({ id: In(ids) });
 
     //
     if (findItems.length !== ids.length) {
-      throw new NotFoundException(Exception.notfound('Image subject item'));
+      throw new NotFoundException(Exception.notfound('Image knowledge'));
     }
 
     //
@@ -183,7 +166,7 @@ export class SubjectItemService {
     );
 
     //
-    const itemDeleted = await Promise.all(ids.map((id) => this.subjectItemRepository.delete(id)));
+    const itemDeleted = await Promise.all(ids.map((id) => this.knowledgeRepository.delete(id)));
     return itemDeleted;
   }
 }
