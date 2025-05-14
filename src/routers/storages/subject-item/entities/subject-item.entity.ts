@@ -2,13 +2,13 @@ import { Enums } from 'liemdev-profile-lib';
 import { ABaseEntity } from 'src/abstracts/ABaseEntity.abstract';
 import { UserEntity } from 'src/routers/user/entities/user.entity';
 import { UtilSlug } from 'src/utils/Slug.util';
-import { BeforeInsert, BeforeUpdate, Column, Entity, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany } from 'typeorm';
 import { KeywordEntity } from '../../keyword/entities/keyword.entity';
 import { SubjectGroupEntity } from '../../subject-group/entities/subject-group.entity';
 
 @Entity('subject_items')
 export class SubjectItemEntity extends ABaseEntity {
-  @Column()
+  @Column({ type: 'varchar', length: 40 })
   name: string;
 
   @Column({ unique: true })
@@ -17,11 +17,17 @@ export class SubjectItemEntity extends ABaseEntity {
   @Column('text')
   desc: string;
 
-  @Column('text')
+  @Column('longtext')
   code: string;
 
   @Column()
   image: string;
+
+  @Column({ type: 'int', nullable: true, default: 0 })
+  rate: number;
+
+  @Column({ type: 'int', nullable: true, default: 0 })
+  like: number;
 
   @ManyToMany(() => KeywordEntity, (keyword) => keyword.subjectItems)
   @JoinTable({

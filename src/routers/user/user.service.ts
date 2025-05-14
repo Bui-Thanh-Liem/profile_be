@@ -9,11 +9,11 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Enums } from 'liemdev-profile-lib';
-import { UtilBuilder } from 'src/utils/Builder.util';
 import { ICreateService, IFindAllService, IUpdateService } from 'src/interfaces/common.interface';
 import { IGetMulti } from 'src/interfaces/response.interface';
 import { QueueMailService } from 'src/libs/bull/queue-mail/queue-mail.service';
 import Exception from 'src/message-validations/exception.validation';
+import { UtilBuilder } from 'src/utils/Builder.util';
 import { In, Not, Repository } from 'typeorm';
 import { RoleGroupEntity } from '../role-group/entities/role-group.entity';
 import { RoleGroupService } from '../role-group/role-group.service';
@@ -22,7 +22,6 @@ import { RoleService } from '../role/role.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entities/user.entity';
-import { IUser } from 'src/interfaces/models.interface';
 
 @Injectable()
 export class UserService implements OnModuleInit {

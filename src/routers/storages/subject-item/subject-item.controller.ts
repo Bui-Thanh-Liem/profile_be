@@ -11,6 +11,7 @@ import { CreateSubjectItemDto } from './dto/create-subject-item.dto';
 import { UpdateSubjectItemDto } from './dto/update-subject-item.dto';
 import { SubjectItemEntity } from './entities/subject-item.entity';
 import { SubjectItemService } from './subject-item.service';
+import { Customer } from 'src/decorators/customer.decorator';
 
 @Controller(Constants.CONSTANT_ROUTE.SUBJECT_ITEM)
 export class SubjectItemController {
@@ -67,10 +68,8 @@ export class SubjectItemController {
   }
 
   @Get()
-  @Public()
+  @Customer()
   async findAll(@Query() queries: AQueries<SubjectItemEntity>) {
-    console.log('queries:::', queries);
-
     const results = await this.subjectItemService.findAll({
       queries,
     });
@@ -79,6 +78,7 @@ export class SubjectItemController {
   }
 
   @Get(':id')
+  @Customer()
   async findOne(@Param('id') id: string) {
     const result = await this.subjectItemService.findOneById(id);
     return new ResponseSuccess('Success', result);

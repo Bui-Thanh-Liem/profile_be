@@ -30,6 +30,8 @@ import { SubjectItemModule } from './routers/storages/subject-item/subject-item.
 import { UserModule } from './routers/user/user.module';
 import { JwtAuthStrategy } from './strategies/auth.strategy';
 import { CustomerModule } from './routers/customer/customer.module';
+import { LikeModule } from './routers/storages/like/like.module';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -103,10 +105,12 @@ import { CustomerModule } from './routers/customer/customer.module';
     SubjectItemModule,
     AboutModule,
     SkillModule,
+    LikeModule,
   ],
   controllers: [HealthController],
   providers: [
     JwtAuthStrategy,
+    AppService,
     {
       provide: APP_INTERCEPTOR,
       useClass: ErrorInterceptor,

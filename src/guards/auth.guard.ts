@@ -16,7 +16,7 @@ export class JwtAuthGuard extends AuthGuard('jwt-auth') {
     super();
   }
 
-  // được gọi trước khi request được xử lý
+  // được gọi trước khi request được xử lý - 1
   canActivate(context: ExecutionContext): boolean {
     this.logger.debug('Run 2');
     const isPublic = this.reflector.get<boolean>('isPublic', context.getHandler());
@@ -58,7 +58,10 @@ export class JwtAuthGuard extends AuthGuard('jwt-auth') {
 
   //
   handleRequest<TUser = any>(err: any, user: any, info: any, context: ExecutionContext, status?: any): TUser {
-    this.logger.debug('verify token invalid');
+    this.logger.debug('Tiếp nhận toàn bộ thông tin');
+    console.log('user:::', user);
+    console.log('err:::', err);
+    console.log('info:::', info);
     const req = context.switchToHttp().getRequest<Request>();
     const res = context.switchToHttp().getResponse<Response>();
 
@@ -75,6 +78,12 @@ export class JwtAuthGuard extends AuthGuard('jwt-auth') {
 
       throw new UnauthorizedException(Exception.invalidToken());
     }
+
+    //
+    delete user.iat;
+    delete user.exp;
+
+    //
     return user;
   }
 }

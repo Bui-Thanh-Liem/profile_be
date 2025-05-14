@@ -4,6 +4,7 @@ import { Request } from 'express';
 import { Constants } from 'liemdev-profile-lib';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
+// - 2
 @Injectable()
 export class JwtAuthStrategy extends PassportStrategy(Strategy, 'jwt-auth') {
   private readonly logger = new Logger(JwtAuthStrategy.name);
@@ -19,7 +20,7 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy, 'jwt-auth') {
     this.logger.debug('verify token');
   }
 
-  // đúng thì gọi - sai thì trả về handleRequest ở JwtAuthGuard
+  // đúng thì gọi và trả về thông tin user (handleRequest), thì về thẳng handleRequest
   validate(payload: any) {
     this.logger.debug('verify token valid');
     return payload; // dùng Passport thì key mặc định sẽ là user, nếu muốn thay đổi key thì dùng guard

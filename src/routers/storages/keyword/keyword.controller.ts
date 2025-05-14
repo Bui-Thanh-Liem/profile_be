@@ -1,15 +1,14 @@
-import { Body, Controller, Delete, Get, Logger, Param, Patch, Post, Query, Req } from '@nestjs/common';
-import { Request } from 'express';
+import { Body, Controller, Delete, Get, Logger, Param, Patch, Post, Query } from '@nestjs/common';
 import { Constants, Enums } from 'liemdev-profile-lib';
 import AQueries from 'src/abstracts/AQuery.abstract';
 import { ResponseSuccess } from 'src/classes/response.class';
+import { ActiveUser } from 'src/decorators/activeUser.decorator';
+import { Public } from 'src/decorators/public.decorator';
+import { IKeyWord } from 'src/interfaces/models.interface';
+import { TPayloadToken } from 'src/types/TPayloadToken.type';
 import { CreateKeyWordDto } from './dto/create-keyword.dto';
 import { UpdateKeyWordDto } from './dto/update-keyword.dto';
 import { KeywordService } from './keyword.service';
-import { IKeyWord } from 'src/interfaces/models.interface';
-import { TPayloadToken } from 'src/types/TPayloadToken.type';
-import { ActiveUser } from 'src/decorators/activeUser.decorator';
-import { Public } from 'src/decorators/public.decorator';
 
 @Controller(Constants.CONSTANT_ROUTE.KEYWORD)
 export class KeyWordController {
