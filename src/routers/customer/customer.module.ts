@@ -9,6 +9,8 @@ import { CustomerController } from './customer.controller';
 import { CustomerService } from './customer.service';
 import { CustomerEntity } from './entities/customer.entity';
 import { HelperModule } from 'src/helpers/helper.module';
+import { QueueSmsModule } from 'src/libs/bull/queue-sms/queue-sms.module';
+import { QueueMailModule } from 'src/libs/bull/queue-mail/queue-mail.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { HelperModule } from 'src/helpers/helper.module';
     TypeOrmModule.forFeature([CustomerEntity, TokenEntity]),
     forwardRef(() => TokenModule),
     HelperModule,
+    QueueSmsModule,
+    QueueMailModule,
   ],
   providers: [CustomerService, GoogleStrategy, JwtService],
   controllers: [CustomerController],

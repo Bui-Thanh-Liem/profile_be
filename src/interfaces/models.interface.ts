@@ -9,6 +9,10 @@ export type ISkill = InterfaceModel.ISkill;
 export type IImage = InterfaceModel.IImage;
 export type IKeyWord = InterfaceModel.IKeyWord;
 export type ISendMail = InterfaceModel.ISendMail;
+export type ISendSms = {
+  phone: string;
+  phones?: string[];
+};
 export type IKnowledge = InterfaceModel.IKnowledge;
 export type IAbout = InterfaceModel.IAbout;
 export type ICustomer = InterfaceModel.ICustomer;

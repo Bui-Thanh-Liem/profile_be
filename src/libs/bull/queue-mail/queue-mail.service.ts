@@ -9,6 +9,7 @@ import { ISendMail } from 'src/interfaces/models.interface';
 export class QueueMailService {
   constructor(@InjectQueue(CONSTANT_QUEUE.QUEUE_MAIL) private emailQueue: Queue) {}
 
+  // Sử dụng template khác nếu muốn gửi otp
   async sendMail(data: ISendMail) {
     await this.emailQueue.add(CONSTANT_JOB.JOB_SEND_MAIL, data, {
       attempts: 3, // Retry 3 lần nếu lỗi

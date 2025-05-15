@@ -134,10 +134,9 @@ export class AuthController {
   @Public()
   @Post('enter-email')
   async enterEmail(
-    @Res() res: Response,
     @Body() enterEmailDto: EnterEmailDto,
-    @Headers('user-agent') userAgent,
-    @Headers('x-forwarded-for') ip,
+    @Headers('user-agent') userAgent: string,
+    @Headers('x-forwarded-for') ip: string,
   ) {
     const result = await this.authService.enterEmail(enterEmailDto.email, userAgent, ip);
 
@@ -148,7 +147,6 @@ export class AuthController {
   @Post('confirm-otp/:token')
   async confirmOtp(
     @Param('token') token: string,
-    @Res() res: Response,
     @Body() confirmOtpDto: ConfirmOtpDto,
     @Headers('user-agent') userAgent,
     @Headers('x-forwarded-for') ip,
@@ -162,10 +160,9 @@ export class AuthController {
   @Post('reset-password')
   async resetPassword(
     @Query() queries: any,
-    @Res() res: Response,
     @Body() resetPasswordDto: ResetPasswordDto,
-    @Headers('user-agent') userAgent,
-    @Headers('x-forwarded-for') ip,
+    @Headers('user-agent') userAgent: string,
+    @Headers('x-forwarded-for') ip: string,
   ) {
     const result = await this.authService.resetPassword(resetPasswordDto.password, queries.token, userAgent, ip);
 

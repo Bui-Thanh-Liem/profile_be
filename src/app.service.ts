@@ -1,34 +1,30 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { UserService } from './routers/user/user.service';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
+import { Injectable } from '@nestjs/common';
+import { CacheService } from './helpers/services/cache.service';
 import { UserEntity } from './routers/user/entities/user.entity';
+import { UserService } from './routers/user/user.service';
 
 @Injectable()
 export class AppService {
   constructor(
     private readonly userService: UserService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private cacheService: CacheService,
   ) {}
 
   async protected(id: string) {
     const key = `userActive:${id}`;
-    console.log('key:::', key);
 
     try {
-      const userActiveCache = await this.cacheManager.get<UserEntity>(key);
+      const userActiveCache = await this.cacheService.getCache<UserEntity>(key);
       console.log('userActiveCache:::', userActiveCache);
 
       if (userActiveCache) return userActiveCache;
 
       const userActive = await this.userService.findOneById(id);
       if (userActive) {
-        const r = await this.cacheManager.set(key, userActive, 600);
-        console.log('r:::', r);
+        const r = await this.cacheService.setCache(key, userActive, 60 * 10000);
       }
       return userActive;
     } catch (error) {
-      // Log error (use NestJS Logger or your preferred logging solution)
       console.error(`Error in protected method for id ${id}:`, error);
       throw new Error('Unable to retrieve user data');
     }

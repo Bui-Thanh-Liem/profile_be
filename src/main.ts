@@ -11,7 +11,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { join } from 'path';
 import { AppModule } from './app.module';
 import { WinstonModule } from 'nest-winston';
-import { winstonLoggerConfig } from './configs/logger.config';
+import { LoggerConfig } from './configs';
 // import { HttpExceptionFilter } from './filters/httpException.filter';
 // import { JwtService } from '@nestjs/jwt';
 // import { AuthGuard } from './guards/auth.guard';
@@ -22,14 +22,14 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true, // cần thiết để bắt log sớm (ghi tất cả các log initial và mapping) ->
     // Nest tạo một logger tạm (buffered logger) để lưu trữ log tạm thời.
-    // app.useLogger(WinstonModule.createLogger(winstonLoggerConfig));
+    // app.useLogger(WinstonModule.createLogger(LoggerConfig));
     // Nest phát lại các log đã buffer
     //  - Ghi ra file (nếu level phù hợp)
     //  - Hiển thị trên console (nếu có cấu hình ConsoleTransport)
   });
 
   //
-  app.useLogger(WinstonModule.createLogger(winstonLoggerConfig));
+  app.useLogger(WinstonModule.createLogger(LoggerConfig));
 
   //
   app.setGlobalPrefix('/api/v1');

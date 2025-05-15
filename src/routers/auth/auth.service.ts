@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { Enums } from 'liemdev-profile-lib';
@@ -16,7 +16,9 @@ import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AuthService {
-  expiryMinutes = 5;
+  private readonly logger = new Logger(AuthService.name);
+
+  expiryMinutes = 2;
 
   constructor(
     private tokenService: TokenService,
@@ -73,7 +75,7 @@ export class AuthService {
     return tokenRefresh;
   }
 
-  async enterEmail(email: string, userAgent: string, ip: string): Promise<boolean> {
+  async enterEmail(email: string, userAgent: string, ip: string): Promise<any> {
     //
     const findUser = await this.userService.findOneByEmail(email); // check exist in userService
 
@@ -87,11 +89,11 @@ export class AuthService {
         ip,
         userAgent,
       },
-      300,
+      600,
     );
 
     //
-    const mailSent = await this.queueMailService.sendMail({
+    await this.queueMailService.sendMail({
       to: findUser.email,
       subject: '"LiemDev 👻" <no-reply@gmail.com>',
       templateName: 'otp.template',
@@ -102,29 +104,37 @@ export class AuthService {
         otpCode: otp,
         fullName: findUser.fullName,
         expiryMinutes: this.expiryMinutes,
-        verificationLink: `${process.env.CLIENT_HOST}/reset-password/${token}`,
+        verificationLink: `${process.env.CLIENT_HOST}/otp?token=${token}`,
       },
       type: Enums.ETypeMail.FORM_OTP,
     });
 
-    return !!otp && mailSent;
+    return { otp, token };
   }
 
   async confirmOtp(otpConfirm: string, token: string, userAgent: string, ip: string): Promise<{ token: string }> {
     let valid: IPayloadTokenOtp;
+
+    //
     try {
       valid = await this.tokenService.verifyAccessToken(token);
     } catch (error) {
+      this.logger.debug('Lỗi token hoặc token hết hạn (10p cho token  = 5 resend otp)');
       throw new UnauthorizedException(Exception.invalidToken());
     }
+
+    //
     if (!valid || valid.userAgent !== userAgent || valid.ip !== ip) {
+      this.logger.debug('Người dùng đổi thiết bị hoặc trình duyệt');
       throw new UnauthorizedException(Exception.invalidToken());
     }
 
     const otp = await this.otpService.getOtp(valid.email);
     if (otp !== otpConfirm) {
+      this.logger.debug('Người dùng nhập sai otp');
       throw new UnauthorizedException(Exception.invalid('OTP, please again !'));
     }
+    await this.otpService.deleteOtp(valid.email);
 
     //
     const newToken = this.tokenService.createTokenTemp(
@@ -145,9 +155,11 @@ export class AuthService {
     try {
       valid = await this.tokenService.verifyAccessToken(token);
     } catch (error) {
+      this.logger.debug('Lỗi token hoặc token hết hạn (10p cho token  = 5 resend otp)');
       throw new UnauthorizedException(Exception.invalidToken());
     }
     if (!valid || valid.userAgent !== userAgent || valid.ip !== ip) {
+      this.logger.debug('Người dùng đổi thiết bị hoặc trình duyệt');
       throw new UnauthorizedException(Exception.invalidToken());
     }
 

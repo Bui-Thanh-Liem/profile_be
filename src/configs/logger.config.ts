@@ -8,7 +8,7 @@ const levelFilter = (level: string) =>
     return info.level === level ? info : undefined;
   })();
 
-export const winstonLoggerConfig: WinstonModuleOptions = {
+const winstonLoggerConfig: WinstonModuleOptions = {
   transports: [
     // Log ra console
     new winston.transports.Console({
@@ -47,3 +47,5 @@ export const winstonLoggerConfig: WinstonModuleOptions = {
     }),
   ],
 };
+
+export default winstonLoggerConfig;
