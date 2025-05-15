@@ -4,7 +4,7 @@ import { OtpService } from './services/Otp.service';
 import { FileLocalService } from './services/FileLocal.service';
 import { CookieService } from './services/Cookie.service';
 import { SmsService } from './services/Sms.service';
-import { CacheService } from './services/cache.service';
+import { CacheService } from './services/Cache.service';
 
 @Module({
   imports: [],

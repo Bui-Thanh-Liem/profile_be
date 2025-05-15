@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CacheService } from './helpers/services/cache.service';
+import { CacheService } from './helpers/services/Cache.service';
 import { UserEntity } from './routers/user/entities/user.entity';
 import { UserService } from './routers/user/user.service';
 

@@ -11,7 +11,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { Enums } from 'liemdev-profile-lib';
-import { CacheService } from 'src/helpers/services/cache.service';
+import { CacheService } from 'src/helpers/services/Cache.service';
 import { OtpService } from 'src/helpers/services/Otp.service';
 import { ICreateService, IFindAllService } from 'src/interfaces/common.interface';
 import { ICustomer } from 'src/interfaces/models.interface';
