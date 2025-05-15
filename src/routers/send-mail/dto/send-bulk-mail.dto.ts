@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 import { Enums } from 'liemdev-profile-lib';
-import { ISendMail } from 'src/interfaces/models.interface';
+import { ISendMail } from 'src/interfaces/common.interface';
 import Validation from 'src/message-validations/message.validation';
 
 export class SendBulkMailDto implements Partial<ISendMail> {

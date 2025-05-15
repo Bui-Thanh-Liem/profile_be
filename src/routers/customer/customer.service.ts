@@ -9,21 +9,22 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
+import { Enums } from 'liemdev-profile-lib';
+import { CacheService } from 'src/helpers/services/cache.service';
+import { OtpService } from 'src/helpers/services/Otp.service';
 import { ICreateService, IFindAllService } from 'src/interfaces/common.interface';
 import { ICustomer } from 'src/interfaces/models.interface';
 import { IGetMulti, IResponseLogin } from 'src/interfaces/response.interface';
+import { QueueMailService } from 'src/libs/bull/queue-mail/queue-mail.service';
 import { QueueSmsService } from 'src/libs/bull/queue-sms/queue-sms.service';
 import { TokenService } from 'src/libs/token/token.service';
 import Exception from 'src/message-validations/exception.validation';
 import { UtilBuilder } from 'src/utils/Builder.util';
 import { Repository } from 'typeorm';
+import { VerifyOtpDto } from './dto/verifyOtp-customer.dto';
 import { VerifyRegisterDto } from './dto/verifyRegister-customer.dto';
 import { CustomerEntity } from './entities/customer.entity';
-import { QueueMailService } from 'src/libs/bull/queue-mail/queue-mail.service';
-import { OtpService } from 'src/helpers/services/Otp.service';
-import { Enums } from 'liemdev-profile-lib';
-import { VerifyOtpDto } from './dto/verifyOtp-customer.dto';
-import { CacheService } from 'src/helpers/services/cache.service';
 
 @Injectable()
 export class CustomerService {
@@ -106,10 +107,7 @@ export class CustomerService {
       throw new ConflictException(Exception.exists('Phone'));
     }
 
-    if (phone) {
-      await this.queueSmsService.sendOtp({ phone: phone });
-      await this.cacheService.setCache(phone, payload, 60 * 2000);
-    } else if (emailPayload) {
+    if (emailPayload) {
       const otp = await this.otpService.setOtp(emailPayload);
       await this.queueMailService.sendMail({
         to: emailPayload,
@@ -126,25 +124,22 @@ export class CustomerService {
         type: Enums.ETypeMail.FORM_OTP,
       });
       await this.cacheService.setCache(emailPayload, payload, 60 * 2000);
+    } else if (phone) {
+      // Luôn không có vì không co tiền nâng cấp gói từ Twilio
+      await this.queueSmsService.sendOtp({ phone: phone });
+      await this.cacheService.setCache(phone, payload, 60 * 2000);
     }
     return true;
   }
 
   async verifyOtpAndCreateCustomer({ code, email, phone }: VerifyOtpDto) {
     let payload: CustomerEntity | null = null;
-    const otpPhone = await this.otpService.getOtp(phone);
+    let validCode = false;
     const otpEmail = await this.otpService.getOtp(email);
+    const otpPhone = await this.otpService.getOtp(phone);
 
-    if (otpPhone) {
-      if (otpPhone !== code) {
-        this.logger.debug('Người dùng nhập sai otp');
-        throw new UnauthorizedException(Exception.invalid('OTP, please again !'));
-      }
-
-      //
-      payload = await this.cacheService.getCache(phone);
-      await this.cacheService.deleteCache(phone);
-    } else if (otpEmail) {
+    //
+    if (otpEmail) {
       if (otpEmail !== code) {
         this.logger.debug('Người dùng nhập sai otp');
         throw new UnauthorizedException(Exception.invalid('OTP, please again !'));
@@ -153,12 +148,77 @@ export class CustomerService {
       //
       payload = await this.cacheService.getCache(email);
       await this.cacheService.deleteCache(email);
+      validCode = true;
+    } else if (otpPhone) {
+      if (otpPhone !== code) {
+        this.logger.debug('Người dùng nhập sai otp');
+        throw new UnauthorizedException(Exception.invalid('OTP, please again !'));
+      }
+
+      //
+      payload = await this.cacheService.getCache(phone);
+      await this.cacheService.deleteCache(phone);
+      validCode = true;
     }
 
+    //
+    if (!validCode) {
+      throw new UnauthorizedException(Exception.invalid('OTP, please again !'));
+    }
+
+    //
     const dataCreate = this.customerRepository.create({
       ...payload,
     });
     return await this.customerRepository.save(dataCreate);
+  }
+
+  async login(
+    customerLogged: Partial<ICustomer>,
+    deviceInfo: string,
+    ipAddress: string,
+  ): Promise<IResponseLogin<ICustomer>> {
+    const { fullName, email, phone, password } = customerLogged;
+
+    //
+    let customer: CustomerEntity | null = null;
+    if (fullName) {
+      customer = await this.customerRepository.findOneBy({ fullName });
+      if (!customer) {
+        throw new UnauthorizedException(Exception.unAuthorization());
+      }
+    } else if (email) {
+      customer = await this.customerRepository.findOneBy({ email });
+      if (!customer) {
+        throw new UnauthorizedException(Exception.unAuthorization());
+      }
+    } else if (phone) {
+      customer = await this.customerRepository.findOneBy({ phone });
+      if (!customer) {
+        throw new UnauthorizedException(Exception.unAuthorization());
+      }
+    }
+
+    //
+    const isPasswordValid = await bcrypt.compare(password, password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException(Exception.unAuthorization());
+    }
+
+    //
+    const { access_token, refresh_token } = await this.tokenService.signToken({
+      customer: customer,
+      deviceInfo,
+      ipAddress,
+    });
+
+    return {
+      customer: customer,
+      token: {
+        access_token,
+        refresh_token,
+      },
+    };
   }
 
   async logout(refreshToken: string) {

@@ -15,6 +15,6 @@ export class VerifyOtpDto {
   email: string;
 
   @Optional()
-  @ApiProperty({ default: '1231233122' })
+  @ApiProperty({ default: '0922902163' })
   phone: string;
 }

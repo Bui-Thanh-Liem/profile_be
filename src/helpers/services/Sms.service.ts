@@ -1,9 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { Twilio } from 'twilio';
 import { OtpService } from './Otp.service';
+import { UtilConvert } from 'src/utils/Convert.util';
 
 @Injectable()
 export class SmsService {
+  private readonly logger = new Logger(SmsService.name);
+
   private client: Twilio;
 
   constructor(private otpService: OtpService) {
@@ -11,12 +14,24 @@ export class SmsService {
   }
 
   async sendOtp(phone: string) {
-    const otp = await this.otpService.setOtp(phone);
-    return this.client.messages.create({
-      body: `Your OTP code is: ${otp}`,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: phone,
-    });
+    const phoneFormatted = UtilConvert.formatToInternational(phone);
+
+    try {
+      this.logger.debug(`Send sms otp for ${phoneFormatted}`);
+      const otp = await this.otpService.setOtp(phone);
+
+      const sent = await this.client.messages.create({
+        body: `Your OTP code is: ${otp}`,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: phoneFormatted,
+      });
+
+      this.logger.debug(`SMS sent successfully: ${JSON.stringify(sent)}`);
+      return true;
+    } catch (error) {
+      this.logger.error(`Error sending OTP to ${phoneFormatted}: ${error.message}`, error.stack);
+      throw new InternalServerErrorException('Unable to send OTP at this time');
+    }
   }
 
   async sendNotification(phone: string[]) {

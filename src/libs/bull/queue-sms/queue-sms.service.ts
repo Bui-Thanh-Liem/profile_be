@@ -2,7 +2,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { CONSTANT_JOB, CONSTANT_QUEUE } from 'src/constants';
-import { ISendSms } from 'src/interfaces/models.interface';
+import { ISendSms } from 'src/interfaces/common.interface';
 
 // Đẩy job vào queue
 @Injectable()

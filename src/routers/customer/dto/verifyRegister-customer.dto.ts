@@ -17,7 +17,7 @@ export class VerifyRegisterDto implements Partial<ICustomer> {
   @IsEmail()
   email: string;
 
-  @ApiProperty({ default: '1231231231' })
+  @ApiProperty({ default: '0922902163' })
   @MinLength(2, { message: Validation.minLength('phone', 10) })
   @MaxLength(20, { message: Validation.maxLength('phone', 11) })
   @IsString()

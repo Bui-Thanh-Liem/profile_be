@@ -113,14 +113,14 @@ export class CustomerController {
   }
 
   // check email, fullname, phone and send otp
-  @Post()
+  @Post('verify-register')
   @Public()
   async verifyRegister(@Body() payload: VerifyRegisterDto) {
     const results = await this.customerService.verifyRegister({ payload, activeUser: null });
     return new ResponseSuccess('Success', results);
   }
 
-  @Post()
+  @Post('verify-otp')
   @Public()
   async verifyOtp(@Body() payload: VerifyOtpDto) {
     const results = await this.customerService.verifyOtpAndCreateCustomer(payload);

@@ -1,4 +1,4 @@
-import { InterfaceCommon } from 'liemdev-profile-lib';
+import { InterfaceCommon, InterfaceModel } from 'liemdev-profile-lib';
 import AQueries from 'src/abstracts/AQuery.abstract';
 import { TPayloadToken } from 'src/types/TPayloadToken.type';
 
@@ -27,3 +27,6 @@ export interface IFindAllService<Entity> {
   queries: AQueries<Entity>;
   activeUser?: TPayloadToken;
 }
+
+export type ISendMail = InterfaceCommon.ISendMail;
+export type ISendSms = InterfaceCommon.ISendSms;

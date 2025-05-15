@@ -4,7 +4,7 @@ import * as handlebars from 'handlebars';
 import * as nodemailer from 'nodemailer';
 import * as path from 'path';
 import { CONSTANT_ENV } from 'src/constants';
-import { ISendMail } from 'src/interfaces/models.interface';
+import { ISendMail } from 'src/interfaces/common.interface';
 
 @Injectable()
 export class MailService {

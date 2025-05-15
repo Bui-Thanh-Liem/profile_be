@@ -9,7 +9,7 @@ import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, OneToMany } from
 
 @Entity('customer')
 export class CustomerEntity extends ABaseEntity implements ICustomer {
-  @Column({ type: 'varchar', unique: true })
+  @Column({ type: 'varchar', unique: true, nullable: true })
   fullName: string;
 
   @Column({ type: 'varchar', nullable: true })
