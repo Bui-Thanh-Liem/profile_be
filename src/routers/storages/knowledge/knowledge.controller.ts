@@ -4,6 +4,7 @@ import AQueries from 'src/abstracts/AQuery.abstract';
 import { ResponseSuccess } from 'src/classes/response.class';
 import { ActiveUser } from 'src/decorators/activeUser.decorator';
 import { Public } from 'src/decorators/public.decorator';
+import { Roles } from 'src/decorators/role.decorator';
 import { UploadSingleFile } from 'src/decorators/upload-single-file.decorator';
 import { TPayloadToken } from 'src/types/TPayloadToken.type';
 import { UtilConvert } from 'src/utils/Convert.util';
@@ -17,6 +18,7 @@ export class KnowledgeController {
   private readonly logger = new Logger(KnowledgeController.name);
   constructor(private readonly knowledgeService: KnowledgeService) {}
 
+  @Roles({ resource: 'knowledge', action: 'create' })
   @Post()
   @UploadSingleFile({
     name: { type: 'string', required: ['name is required'] },
@@ -42,6 +44,7 @@ export class KnowledgeController {
     return new ResponseSuccess('Success', result);
   }
 
+  @Roles({ resource: 'knowledge', action: 'update' })
   @Patch(':id')
   @UploadSingleFile()
   async update(
@@ -66,8 +69,8 @@ export class KnowledgeController {
     return new ResponseSuccess('Success', result);
   }
 
-  @Get()
   @Public()
+  @Get()
   async findAll(@Query() queries: AQueries<KnowledgeEntity>) {
     const results = await this.knowledgeService.findAll({
       queries,
@@ -76,13 +79,14 @@ export class KnowledgeController {
     return new ResponseSuccess('Success', results);
   }
 
-  @Get(':id')
   @Public()
+  @Get(':id')
   async findOne(@Param('id') id: string) {
     const result = await this.knowledgeService.findOneById(id);
     return new ResponseSuccess('Success', result);
   }
 
+  @Roles({ resource: 'knowledge', action: 'delete' })
   @Delete()
   async remove(@Body() ids: string[]) {
     const result = await this.knowledgeService.remove(ids);

@@ -146,6 +146,7 @@ export class KeywordService {
     const items = await this.keywordRepository
       .createQueryBuilder('keyword')
       .leftJoinAndSelect('keyword.knowledge', 'knowledge')
+      .where({ id: In(ids) })
       .getMany();
 
     //
@@ -154,13 +155,15 @@ export class KeywordService {
     }
 
     // Depends
-    await Promise.allSettled(
+    const deleted = await Promise.all(
       items.map((item) => {
         this.checkRelations(item, ['knowledge']); // Check exist relations
         return this.keywordRepository.delete(item.id);
       }),
     );
 
+    this.logger.debug(deleted);
+    console.debug(deleted);
     return true;
   }
 

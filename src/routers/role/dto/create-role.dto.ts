@@ -19,8 +19,8 @@ export class CreateRoleDto implements Partial<IRole> {
   @ApiProperty({
     default: [
       {
-        resource: Enums.ERoleResources.FILE,
-        actions: [Enums.ERoleActions.CREATE],
+        resource: Enums.EResources.CUSTOMER,
+        actions: [Enums.EActions.CREATE],
       },
     ],
   })

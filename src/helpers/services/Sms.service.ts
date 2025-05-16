@@ -1,7 +1,8 @@
 import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { UtilArray } from 'src/utils/Array.util';
+import { UtilConvert } from 'src/utils/Convert.util';
 import { Twilio } from 'twilio';
 import { OtpService } from './Otp.service';
-import { UtilConvert } from 'src/utils/Convert.util';
 
 @Injectable()
 export class SmsService {
@@ -36,7 +37,7 @@ export class SmsService {
 
   async sendNotification(phone: string[]) {
     const batchSize = 10;
-    const recipientChunks = this.chunkArray(phone, batchSize);
+    const recipientChunks = UtilArray.chunkArray(phone, batchSize);
 
     //
     for (const chunk of recipientChunks) {
@@ -52,9 +53,5 @@ export class SmsService {
     }
 
     return true;
-  }
-
-  private chunkArray(arr: string[], size: number) {
-    return Array.from({ length: Math.ceil(arr.length / size) }, (_, i) => arr.slice(size * i, size * i + size));
   }
 }

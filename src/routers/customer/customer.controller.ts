@@ -20,6 +20,7 @@ import { ResponseSuccess } from 'src/classes/response.class';
 import { CONSTANT_TOKEN } from 'src/constants';
 import { ActiveUser } from 'src/decorators/activeUser.decorator';
 import { Public } from 'src/decorators/public.decorator';
+import { Roles } from 'src/decorators/role.decorator';
 import { CookieService } from 'src/helpers/services/Cookie.service';
 import { ICustomer } from 'src/interfaces/models.interface';
 import Exception from 'src/message-validations/exception.validation';
@@ -152,6 +153,7 @@ export class CustomerController {
   }
 
   @Get()
+  @Roles({ resource: 'customer', action: 'view' })
   async findAll(@Query() queries: AQueries<CustomerEntity>, @ActiveUser() activeUser: TPayloadToken) {
     const { items, totalItems } = await this.customerService.findAll({ queries, activeUser });
     return new ResponseSuccess('Success', { items, totalItems });

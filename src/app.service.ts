@@ -21,7 +21,7 @@ export class AppService {
 
       const userActive = await this.userService.findOneById(id);
       if (userActive) {
-        const r = await this.cacheService.setCache(key, userActive, 60 * 10000);
+        const r = await this.cacheService.setCache(key, userActive, 600);
       }
       return userActive;
     } catch (error) {

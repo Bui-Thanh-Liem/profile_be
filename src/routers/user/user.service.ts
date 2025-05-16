@@ -22,6 +22,8 @@ import { RoleService } from '../role/role.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entities/user.entity';
+import { UtilArray } from 'src/utils/Array.util';
+import { IUser } from 'src/interfaces/models.interface';
 
 @Injectable()
 export class UserService implements OnModuleInit {
@@ -307,5 +309,26 @@ export class UserService implements OnModuleInit {
 
     const createData = this.userRepository.create(dataAdmin);
     await this.userRepository.save(createData);
+  }
+
+  async test(data: Partial<IUser>[]): Promise<boolean> {
+    try {
+      const batchSize = 5;
+      const recipientChunks = UtilArray.chunkArray(data, batchSize); // [ 5items, 5items]
+
+      //
+      for (const chunk of recipientChunks) {
+        await Promise.all(
+          chunk.map((data) => {
+            const dataCreate = this.userRepository.create({ ...data } as any);
+            this.userRepository.save(dataCreate);
+          }),
+        );
+      }
+
+      return true;
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
   }
 }

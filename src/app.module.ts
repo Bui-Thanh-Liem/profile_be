@@ -16,6 +16,8 @@ import { JwtAuthGuard } from './guards/auth.guard';
 import { HelperModule } from './helpers/helper.module';
 import { ErrorInterceptor } from './interceptors/ErrorInterceptor.interceptor';
 import { QueueMailModule } from './libs/bull/queue-mail/queue-mail.module';
+import { QueueSmsModule } from './libs/bull/queue-sms/queue-sms.module';
+import { QueueTestModule } from './libs/bull/queue-test/queue-test.module';
 import { TaskModule } from './libs/tasks/task.module';
 import { TokenModule } from './libs/token/token.module';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
@@ -31,6 +33,8 @@ import { KnowledgeModule } from './routers/storages/knowledge/knowledge.module';
 import { LikeModule } from './routers/storages/like/like.module';
 import { UserModule } from './routers/user/user.module';
 import { JwtAuthStrategy } from './strategies/auth.strategy';
+import { TestModule } from './routers/test/test.module';
+import { RolesGuard } from './guards/role.guard';
 
 @Module({
   imports: [
@@ -82,6 +86,8 @@ import { JwtAuthStrategy } from './strategies/auth.strategy';
       }),
     }),
     QueueMailModule,
+    QueueSmsModule,
+    QueueTestModule,
 
     // list module
     HelperModule,
@@ -97,6 +103,7 @@ import { JwtAuthStrategy } from './strategies/auth.strategy';
     AboutModule,
     SkillModule,
     LikeModule,
+    TestModule,
   ],
   controllers: [HealthController],
   providers: [
@@ -121,6 +128,10 @@ import { JwtAuthStrategy } from './strategies/auth.strategy';
     {
       provide: APP_GUARD, // toàn bộ ứng trừ Public()
       useClass: JwtAuthGuard, // NestJS sẽ tự inject JwtService & Reflector
+    },
+    {
+      provide: APP_GUARD, // toàn bộ ứng trừ Public()
+      useClass: RolesGuard,
     },
   ],
 })

@@ -5,6 +5,7 @@ import * as nodemailer from 'nodemailer';
 import * as path from 'path';
 import { CONSTANT_ENV } from 'src/constants';
 import { ISendMail } from 'src/interfaces/common.interface';
+import { UtilArray } from 'src/utils/Array.util';
 
 @Injectable()
 export class MailService {
@@ -51,8 +52,8 @@ export class MailService {
   }
 
   async sendBulkMails({ subject, templateName, toBulk, variables, type, source }: ISendMail) {
-    const batchSize = 10;
-    const recipientChunks = this.chunkArray(toBulk, batchSize);
+    const batchSize = 5;
+    const recipientChunks = UtilArray.chunkArray(toBulk, batchSize); // [ 5items, 5items]
 
     //
     for (const chunk of recipientChunks) {
@@ -71,9 +72,5 @@ export class MailService {
     }
 
     return true;
-  }
-
-  private chunkArray(arr: string[], size: number) {
-    return Array.from({ length: Math.ceil(arr.length / size) }, (_, i) => arr.slice(size * i, size * i + size));
   }
 }

@@ -123,11 +123,11 @@ export class CustomerService {
         },
         type: Enums.ETypeMail.FORM_OTP,
       });
-      await this.cacheService.setCache(emailPayload, payload, 60 * 2000);
+      await this.cacheService.setCache(emailPayload, payload, 120);
     } else if (phone) {
       // Luôn không có vì không co tiền nâng cấp gói từ Twilio
       await this.queueSmsService.sendOtp({ phone: phone });
-      await this.cacheService.setCache(phone, payload, 60 * 2000);
+      await this.cacheService.setCache(phone, payload, 120);
     }
     return true;
   }
