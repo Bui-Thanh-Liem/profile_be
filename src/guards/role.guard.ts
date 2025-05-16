@@ -65,6 +65,7 @@ export class RolesGuard implements CanActivate {
     const hasRole = [...roles, ..._roles].some((role: IRole) => {
       const dataResources = role.dataSources as IRoleDataResource[];
       return dataResources.some((_) => {
+        if (_.actions.includes(Enums.EActions.MANAGE)) return true;
         return _.resource === roleOnRoute.resource && _.actions.includes(roleOnRoute.action as Enums.EActions);
       });
     });
