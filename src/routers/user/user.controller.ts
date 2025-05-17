@@ -9,11 +9,13 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entities/user.entity';
 import { UserService } from './user.service';
+import { Roles } from 'src/decorators/role.decorator';
 
 @Controller(Constants.CONSTANT_ROUTE.USER)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Roles({ resource: 'user', action: 'create' })
   @Post()
   @SerializeOptions({ type: UserEntity })
   async create(@Body() payload: CreateUserDto, @ActiveUser() activeUser: TPayloadToken) {
@@ -30,6 +32,7 @@ export class UserController {
    * (entity) như new UserEntity(item) nữa.
    */
 
+  @Roles({ resource: 'user', action: 'view' })
   // @UseInterceptors(ClassSerializerInterceptor) // sử dụng global
   @Get()
   async findAll(@Query() queries: AQueries<UserEntity>, @ActiveUser() activeUser: TPayloadToken) {
@@ -41,30 +44,35 @@ export class UserController {
     return new ResponseSuccess('Success', { items, totalItems });
   }
 
+  @Roles({ resource: 'user', action: 'view' })
   @Get('ids')
   async findManyByIds(@Body() ids: string[]) {
     const result = await this.userService.findManyByIds(ids);
     return new ResponseSuccess('Success', result);
   }
 
+  @Roles({ resource: 'user', action: 'view' })
   @Get(':id')
   async findOneById(@Param('id') id: string) {
     const result = await this.userService.findOneById(id);
     return new ResponseSuccess('Success', result);
   }
 
+  @Roles({ resource: 'user', action: 'update' })
   @Patch(':id')
   async update(@Param('id') id: string, @Body() payload: UpdateUserDto, @ActiveUser() activeUser: TPayloadToken) {
     const result = await this.userService.update({ id, payload, activeUser });
     return new ResponseSuccess('Success', result);
   }
 
+  @Roles({ resource: 'user', action: 'update' })
   @Patch('block/:id')
   async block(@Param('id') payload: BlockUserDto) {
     const result = await this.userService.block(payload.id);
     return new ResponseSuccess('Success', result);
   }
 
+  @Roles({ resource: 'user', action: 'delete' })
   @Delete()
   async remove(@Body() ids: string[]) {
     const result = await this.userService.remove(ids);

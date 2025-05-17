@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, Logger, Param, Patch, Post, UploadedFile } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UploadedFile } from '@nestjs/common';
 import { Constants } from 'liemdev-profile-lib';
 import { ResponseSuccess } from 'src/classes/response.class';
 import { ActiveUser } from 'src/decorators/activeUser.decorator';
 import { Public } from 'src/decorators/public.decorator';
+import { Roles } from 'src/decorators/role.decorator';
 import { UploadSingleFile } from 'src/decorators/upload-single-file.decorator';
 import { TPayloadToken } from 'src/types/TPayloadToken.type';
 import { CreateSkillDto } from './dto/create-skill.dto';
@@ -11,9 +12,9 @@ import { SkillService } from './skill.service';
 
 @Controller(Constants.CONSTANT_ROUTE.SKILL)
 export class SkillController {
-  private readonly logger = new Logger(SkillController.name);
   constructor(private readonly skillService: SkillService) {}
 
+  @Roles({ resource: 'skill', action: 'create' })
   @Post()
   @UploadSingleFile({
     name: {
@@ -36,6 +37,7 @@ export class SkillController {
     return new ResponseSuccess('Success', result);
   }
 
+  @Roles({ resource: 'skill', action: 'update' })
   @Patch(':id')
   @UploadSingleFile()
   async update(
@@ -65,11 +67,13 @@ export class SkillController {
   }
 
   @Get(':id')
+  @Public()
   async findOneById(@Param('id') id: string) {
     const result = await this.skillService.findOneById(id);
     return new ResponseSuccess('Success', result);
   }
 
+  @Roles({ resource: 'skill', action: 'delete' })
   @Delete()
   async remove(@Body() ids: string[]) {
     const result = await this.skillService.remove(ids);

@@ -8,6 +8,7 @@ import { TPayloadToken } from 'src/types/TPayloadToken.type';
 import { UtilConvert } from 'src/utils/Convert.util';
 import { AboutService } from './about.service';
 import { UpdateAboutDto } from './dto/update-about.dto';
+import { Roles } from 'src/decorators/role.decorator';
 
 @Controller(Constants.CONSTANT_ROUTE.ABOUT)
 export class AboutController {
@@ -20,6 +21,7 @@ export class AboutController {
     return new ResponseSuccess('Success', result);
   }
 
+  @Roles({ resource: 'about', action: 'update' })
   @Patch()
   @UploadSingleFile()
   async update(

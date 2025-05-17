@@ -44,7 +44,7 @@ export class KeyWordController {
     return new ResponseSuccess('Success', result);
   }
 
-  @Roles({ resource: 'keyword', action: 'view' })
+  @Public()
   @Get(':id')
   async findOneById(@Param('id') id: string) {
     const result = await this.keywordService.findOneById(id);
