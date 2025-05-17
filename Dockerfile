@@ -7,9 +7,6 @@ WORKDIR /app
 # Sao chép package.json và package-lock.json trước để tận dụng Docker cache
 COPY package*.json ./
 
-#
-RUN npm cache clean --force
-
 # Cài đặt các dependencies
 RUN npm install --verbose
 
