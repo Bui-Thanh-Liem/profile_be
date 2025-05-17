@@ -61,7 +61,6 @@ export class SkillController {
   @Get()
   @Public()
   async findAll() {
-    // eslint-disable-next-line prefer-const
     const result = await this.skillService.findAll();
     return new ResponseSuccess('Success', result);
   }
