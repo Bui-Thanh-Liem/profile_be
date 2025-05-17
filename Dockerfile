@@ -1,5 +1,5 @@
 # Sử dụng Node.js LTS làm base image
-FROM node:22
+FROM node:20
 
 # Tạo thư mục làm việc trong container
 WORKDIR /app
