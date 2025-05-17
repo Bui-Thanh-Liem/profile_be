@@ -1,6 +1,6 @@
 # compiled output
 /dist
-/public
+/public/uploads
 /node_modules
 /build
 
