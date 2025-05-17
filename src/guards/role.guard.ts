@@ -38,7 +38,7 @@ export class RolesGuard implements CanActivate {
 
     if (!roleUser) {
       this.logger.debug('Call api get roles');
-      const user = await this.userService.findOneById(userId);
+      const user = await this.userService.findOneRelationById(userId);
       const isAdmin = user.isAdmin || user.isSubAdmin;
 
       if ((!user || !user.roles) && !isAdmin) {
@@ -65,13 +65,16 @@ export class RolesGuard implements CanActivate {
     const hasRole = [...roles, ..._roles].some((role: IRole) => {
       const dataResources = role.dataSources as IRoleDataResource[];
       return dataResources.some((_) => {
-        if (_.actions.includes(Enums.EActions.MANAGE)) return true;
-        return _.resource === roleOnRoute.resource && _.actions.includes(roleOnRoute.action as Enums.EActions);
+        const isResource = _.resource === roleOnRoute.resource;
+        const isManage = _.actions.includes(Enums.EActions.MANAGE);
+        const isAction = _.actions.includes(roleOnRoute.action as Enums.EActions);
+        return isResource && (isAction || isManage);
       });
     });
 
+    console.log('hasRole:::', hasRole);
     if (!hasRole) {
-      throw new ForbiddenException('You are not authorized to access this resource.');
+      throw new ForbiddenException('You are not authorized to access or manipulate this resource.');
     }
 
     return true;

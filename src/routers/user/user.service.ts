@@ -96,7 +96,7 @@ export class UserService implements OnModuleInit {
     }
 
     //
-    const mailSent = await this.queueMailService.sendMail({
+    await this.queueMailService.sendMail({
       to: emailPayload,
       subject: '"LiemDev 👻" <no-reply@gmail.com>',
       templateName: 'infoRegister.template',
@@ -110,9 +110,6 @@ export class UserService implements OnModuleInit {
       },
       type: Enums.ETypeMail.FORM_REGISTER,
     });
-    if (!mailSent) {
-      throw new BadRequestException('Email does not exist or mail sending failed');
-    }
 
     const dataCreate = this.userRepository.create({
       ...payload,
@@ -166,6 +163,20 @@ export class UserService implements OnModuleInit {
 
   async findOneById(id: string): Promise<UserEntity> {
     const findItem = await this.userRepository.findOneBy({ id });
+    if (!findItem) {
+      throw new NotFoundException(Exception.notfound('User'));
+    }
+    return findItem;
+  }
+
+  async findOneRelationById(userId: string): Promise<UserEntity> {
+    const findItem = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.roles', 'roles')
+      .leftJoinAndSelect('user.roleGroups', 'roleGroups')
+      .where('user.id = :id', { id: userId })
+      .getOne();
+
     if (!findItem) {
       throw new NotFoundException(Exception.notfound('User'));
     }
@@ -320,6 +331,7 @@ export class UserService implements OnModuleInit {
       for (const chunk of recipientChunks) {
         await Promise.all(
           chunk.map((data) => {
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
             const dataCreate = this.userRepository.create({ ...data } as any);
             this.userRepository.save(dataCreate);
           }),
