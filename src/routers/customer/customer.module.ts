@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TokenEntity } from 'src/libs/token/entities/token.entity';
-import { GoogleStrategy } from 'src/strategies/google.strategy';
+import { GoogleStrategy } from 'src/routers/customer/strategy-local/local.strategy';
 import { TokenModule } from '../../libs/token/token.module';
 import { CustomerController } from './customer.controller';
 import { CustomerService } from './customer.service';

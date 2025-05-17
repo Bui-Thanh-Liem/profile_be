@@ -47,7 +47,6 @@ export class CustomerController {
 
   @Get('google/callback')
   @Public()
-  @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(
     @Req() req: Request,
     @Res() res: Response,
@@ -75,6 +74,14 @@ export class CustomerController {
     });
 
     return res.redirect(`${process.env.CLIENT_HOST}/storage?google_login=success`);
+  }
+
+  @Public()
+  @Get('verify-login-google')
+  async verifyLoginGoogle(@Req() req: Request) {
+    const customerId = req['customer'];
+    const result = await this.customerService.findOneById(customerId);
+    return new ResponseSuccess('Success', result);
   }
 
   @Post('login')

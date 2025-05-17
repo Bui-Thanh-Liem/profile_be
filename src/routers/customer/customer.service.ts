@@ -43,6 +43,7 @@ export class CustomerService {
     private cacheService: CacheService,
   ) {}
 
+  // login google
   async registerOrLoginGg(
     payload: Partial<ICustomer>,
     deviceInfo: string,
