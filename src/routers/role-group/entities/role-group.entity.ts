@@ -13,7 +13,7 @@ export class RoleGroupEntity extends ABaseEntity implements IRoleGroup {
   desc: string;
 
   @ManyToMany(() => RoleEntity, (role) => role.roleGroups, {
-    cascade: ['remove'],
+    onDelete: 'CASCADE',
   })
   @JoinTable({
     name: 'role_group_role',
@@ -22,7 +22,7 @@ export class RoleGroupEntity extends ABaseEntity implements IRoleGroup {
   })
   roles: RoleEntity[];
 
-  @ManyToMany(() => UserEntity, (user) => user.roleGroups)
+  @ManyToMany(() => UserEntity, (user) => user.roleGroups, { onDelete: 'CASCADE' })
   @JoinTable({
     name: 'role_group_user',
     joinColumn: {

@@ -16,7 +16,7 @@ export class RoleEntity extends ABaseEntity implements IRole {
   @Column({ type: 'json' })
   dataSources: IRoleDataResource[];
 
-  @ManyToMany(() => UserEntity, (user) => user.roles)
+  @ManyToMany(() => UserEntity, (user) => user.roles, { onDelete: 'CASCADE' })
   @JoinTable({
     name: 'role_user',
     joinColumn: { name: 'role_id', referencedColumnName: 'id' },

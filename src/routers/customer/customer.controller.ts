@@ -40,13 +40,15 @@ export class CustomerController {
     private cookieService: CookieService,
   ) {}
 
+  @Public()
   @Get('google')
   @Public()
   @UseGuards(AuthGuard('google'))
   googleAuth() {}
 
-  @Get('google/callback')
   @Public()
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(
     @Req() req: Request,
     @Res() res: Response,
@@ -84,8 +86,8 @@ export class CustomerController {
     return new ResponseSuccess('Success', result);
   }
 
-  @Post('login')
   @Public()
+  @Post('login')
   async login(
     @Req() req: Request,
     @Res() res: Response,
@@ -121,20 +123,21 @@ export class CustomerController {
   }
 
   // check email, fullname, phone and send otp
-  @Post('verify-register')
   @Public()
+  @Post('verify-register')
   async verifyRegister(@Body() payload: VerifyRegisterDto) {
     const results = await this.customerService.verifyRegister({ payload, activeUser: null });
     return new ResponseSuccess('Success', results);
   }
 
-  @Post('verify-otp')
   @Public()
+  @Post('verify-otp')
   async verifyOtp(@Body() payload: VerifyOtpDto) {
     const results = await this.customerService.verifyOtpAndCreateCustomer(payload);
     return new ResponseSuccess('Success', results);
   }
 
+  @Public()
   @Post('logout')
   async logout(@Req() req: Request, @Res() res: Response) {
     //
