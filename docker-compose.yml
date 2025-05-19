@@ -17,7 +17,7 @@ services:
     networks:
       - app-network
     volumes:
-      - ./public:/app/public/documents
+      - ./public/uploads:/app/public/uploads
 
   mysql:
     image: mysql:8.0
