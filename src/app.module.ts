@@ -11,7 +11,7 @@ import { AppService } from './app.service';
 import { MysqlConfig, RedisConfig } from './configs/index';
 import { CONSTANT_CONFIG, CONSTANT_ENV } from './constants/index';
 import { HttpExceptionFilter } from './filters/httpException.filter';
-import { TypeOrmExceptionFilter } from './filters/typeOrmException';
+import { TypeOrmExceptionFilter } from './filters/typeOrmException.filter';
 import { JwtAuthGuard } from './guards/auth.guard';
 import { HelperModule } from './helpers/helper.module';
 import { ErrorInterceptor } from './interceptors/ErrorInterceptor.interceptor';

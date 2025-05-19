@@ -1,10 +1,11 @@
 import { registerAs } from '@nestjs/config';
 import { RedisOptions } from 'ioredis';
+import { CONSTANT_CONFIG } from 'src/constants';
 
 export default registerAs(
-  'redis',
+  CONSTANT_CONFIG.REDIS,
   (): RedisOptions => ({
-    host: process.env.REDIS_HOST || 'redis',
+    host: process.env.REDIS_HOST || 'localhost',
     port: +process.env.REDIS_PORT || 6379,
     // password: process.env.REDIS_PASSWORD,
   }),

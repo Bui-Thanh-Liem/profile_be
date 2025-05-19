@@ -111,6 +111,7 @@ export class UserService implements OnModuleInit {
       type: Enums.ETypeMail.FORM_REGISTER,
     });
 
+    delete payload.passwordConfirm;
     const dataCreate = this.userRepository.create({
       ...payload,
       roles: findRoles || [],

@@ -1,4 +1,4 @@
-import { ArgumentsHost, Catch, ExceptionFilter, Logger } from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus, Logger } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ResponseError } from 'src/classes/response.class';
 import { CONSTANT_ENV } from 'src/constants';
@@ -15,7 +15,7 @@ export class TypeOrmExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
 
     // Mặc định statusCode và message
-    let statusCode = 500;
+    let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
     let message: string | string[] = 'Internal Server Error';
 
     //

@@ -39,7 +39,7 @@ export class CreateUserDto implements Partial<IUser> {
   @Match('password', {
     message: 'Passwords do not match',
   })
-  passwordConfirm: string;
+  passwordConfirm?: string;
 
   @ApiProperty({ default: [] })
   @IsArray()

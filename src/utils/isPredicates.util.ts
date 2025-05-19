@@ -1,5 +1,5 @@
 import { HttpExceptionFilter } from 'src/filters/httpException.filter';
-import { TypeOrmExceptionFilter } from 'src/filters/typeOrmException';
+import { TypeOrmExceptionFilter } from 'src/filters/typeOrmException.filter';
 import { IBase } from 'src/interfaces/models.interface';
 
 export function isExitItem<T extends IBase>(value: any): value is T {
