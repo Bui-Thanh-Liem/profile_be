@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
-import { Constants } from 'liemdev-profile-lib';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { CONSTANT_TOKEN } from 'src/constants';
 
 // - 2
 @Injectable()
@@ -11,9 +11,7 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy, 'jwt-auth') {
   constructor() {
     super({
       // jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      jwtFromRequest: ExtractJwt.fromExtractors([
-        (req: Request) => req.cookies[Constants.CONSTANT_TOKEN.TOKEN_NAME_USER],
-      ]),
+      jwtFromRequest: ExtractJwt.fromExtractors([(req: Request) => req.cookies[CONSTANT_TOKEN.TOKEN_NAME_USER]]),
       ignoreExpiration: false,
       secretOrKey: process.env.SECRET_ACCESS_KEY,
     });

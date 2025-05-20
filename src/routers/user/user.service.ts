@@ -10,9 +10,11 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Enums } from 'liemdev-profile-lib';
 import { ICreateService, IFindAllService, IUpdateService } from 'src/interfaces/common.interface';
+import { IUser } from 'src/interfaces/models.interface';
 import { IGetMulti } from 'src/interfaces/response.interface';
 import { QueueMailService } from 'src/libs/bull/queue-mail/queue-mail.service';
 import Exception from 'src/message-validations/exception.validation';
+import { UtilArray } from 'src/utils/Array.util';
 import { UtilBuilder } from 'src/utils/Builder.util';
 import { In, Not, Repository } from 'typeorm';
 import { RoleGroupEntity } from '../role-group/entities/role-group.entity';
@@ -22,8 +24,6 @@ import { RoleService } from '../role/role.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entities/user.entity';
-import { UtilArray } from 'src/utils/Array.util';
-import { IUser } from 'src/interfaces/models.interface';
 
 @Injectable()
 export class UserService implements OnModuleInit {
@@ -129,6 +129,18 @@ export class UserService implements OnModuleInit {
     if (!findUser) {
       throw new BadRequestException(Exception.bad());
     }
+
+    // Cách 1:
+    // const exists = await this.userRepository.exists({ where: { id: userActionId } });
+    // if (!exists) {
+    //   throw new BadRequestException('Something went wrong, please login again.');
+    // }
+
+    // Cách 2: nếu cần logic phức tạp
+    // const exists = await this.userRepository
+    //   .createQueryBuilder('user')
+    //   .where('user.id = :id', { id: activeUser.userId })
+    //   .getExists();
 
     //
     const queryBuilder = new UtilBuilder<UserEntity>(this.userRepository, {
@@ -298,10 +310,10 @@ export class UserService implements OnModuleInit {
   }
 
   async initialAdmin() {
-    const admin_fullname = process.env.ROOT_FULLNAME;
-    const admin_email = process.env.ROOT_EMAIL;
-    const admin_phone = process.env.ROOT_PHONE;
-    const admin_password = process.env.ROOT_PASSWORD;
+    const admin_fullname = process.env.ROOT_FULLNAME || 'LiemDev';
+    const admin_email = process.env.ROOT_EMAIL || 'buithanhliem5073@gmail.com';
+    const admin_phone = process.env.ROOT_PHONE || '0375255073';
+    const admin_password = process.env.ROOT_PASSWORD || 'Liemdev123@';
 
     const findAdmin = await this.userRepository.findOneBy({
       fullName: admin_fullname,
@@ -311,12 +323,12 @@ export class UserService implements OnModuleInit {
     if (findAdmin) return;
 
     const dataAdmin = {
-      fullName: admin_fullname || 'LiemDev',
-      phone: admin_phone || '0375255073',
-      email: admin_email || 'buithanhliem5073@gmail.com',
-      gender: Enums.EGender.MALE,
       isAdmin: true,
-      password: admin_password || 'Liemdev123@',
+      email: admin_email,
+      phone: admin_phone,
+      fullName: admin_fullname,
+      gender: Enums.EGender.MALE,
+      password: admin_password,
     };
 
     const createData = this.userRepository.create(dataAdmin);

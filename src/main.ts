@@ -34,7 +34,7 @@ async function bootstrap() {
   //
   app.setGlobalPrefix('/api/v1');
 
-  // Compression response -> client
+  // Compression response from server to client
   app.use(compression());
 
   // Protect technologies

@@ -169,3 +169,27 @@ export class UtilBuilder<T extends ABaseEntity> {
 //   },
 // });
 // const totalItems = await this.userRepository.count();
+
+// Option 1: Standard LIKE (case-sensitive)
+// queryBuilder.where(
+//   '(user.fullName LIKE :q OR user.email LIKE :q)',
+//   { q: `%${sanitizedQ}%` }
+// );
+
+// Option 2: Case-insensitive search
+// queryBuilder.where(
+//   '(LOWER(user.fullName) LIKE LOWER(:q) OR LOWER(user.email) LIKE LOWER(:q))',
+//   { q: `%${sanitizedQ}%` }
+// );
+
+// Option 3: Full-text search (requires FULLTEXT index)
+// queryBuilder.where(
+//   'MATCH(user.fullName, user.email) AGAINST(:q IN NATURAL LANGUAGE MODE)',
+//   { q: sanitizedQ }
+// );
+
+// Option 4: Boolean full-text search (for more complex queries)
+// queryBuilder.where(
+//   'MATCH(user.fullName, user.email) AGAINST(:q IN BOOLEAN MODE)',
+//   { q: `+${sanitizedQ}*` }
+// );

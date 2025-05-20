@@ -179,7 +179,7 @@ export class AuthService {
 
   async logout(refreshToken: string) {
     try {
-      this.tokenService.verifyAccessToken(refreshToken);
+      this.tokenService.verifyRefreshToken(refreshToken);
 
       // 1. Thu hồi token để kiểm tra lịch sử đăng nhập
       const revoked = await this.tokenService.revokeToken({ refreshToken: refreshToken });

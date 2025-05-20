@@ -7,8 +7,6 @@ import { Cache } from 'cache-manager';
  */
 @Injectable()
 export class CacheService {
-  private readonly alias = 'cache';
-
   constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
   /**
@@ -20,7 +18,7 @@ export class CacheService {
    * @returns The stored value.
    */
   async setCache(key: string, val: any, ttl: number) {
-    await this.cacheManager.set(`${this.alias}:${key}`, val, ttl * 1000);
+    await this.cacheManager.set(`${key}`, val, ttl * 1000);
     return val;
   }
 
@@ -31,7 +29,7 @@ export class CacheService {
    * @returns The value stored in the cache (or undefined if not found).
    */
   async getCache<T>(key: string): Promise<T> {
-    const val = (await this.cacheManager.get(`${this.alias}:${key}`)) as T;
+    const val = (await this.cacheManager.get(`${key}`)) as T;
     return val;
   }
 
@@ -41,7 +39,43 @@ export class CacheService {
    * @param key - Cache key to be deleted.
    */
   async deleteCache(key: string) {
-    await this.cacheManager.del(`${this.alias}:${key}`);
+    await this.cacheManager.del(`:${key}`);
+  }
+
+  /**
+   * Add a key from the cache.
+   *
+   * @param pattern - Cache pattern to be deleted.
+   * @param ttl     - Time to live in seconds. (must be longer than cache key is all)
+   */
+  async addToKeyList(pattern: string, key: string, ttl: number): Promise<void> {
+    //
+    const allKeys = (await this.cacheManager.get<string[]>(`${pattern}:allKeys`)) || [];
+
+    //
+    if (!allKeys.includes(key)) {
+      allKeys.push(key);
+
+      //
+      await this.cacheManager.set(`${pattern}:allKeys`, allKeys, ttl * 1000);
+    }
+  }
+
+  /**
+   * Delete a key from the cache.
+   *
+   * @param pattern - Cache pattern to be deleted.
+   */
+  async deleteCacheByPattern(pattern: string): Promise<void> {
+    // Lấy danh sách các khóa đã lưu
+    const allKeys = (await this.cacheManager.get<string[]>(`${pattern}:allKeys`)) || [];
+    console.log('allKeys:::', allKeys);
+
+    for (const key of allKeys) {
+      await this.cacheManager.del(key);
+    }
+    // Xóa danh sách khóa
+    await this.cacheManager.del(`${pattern}:allKeys`);
   }
 
   /**
@@ -54,7 +88,7 @@ export class CacheService {
    * @returns The value from cache or from the fallback function.
    */
   async getOrSet<T>(key: string, fallbackFn: () => Promise<T>, ttl: number): Promise<T> {
-    const fullKey = `${this.alias}:${key}`;
+    const fullKey = `${key}`;
     const cached = await this.cacheManager.get(fullKey);
 
     if (cached !== undefined && cached !== null) {

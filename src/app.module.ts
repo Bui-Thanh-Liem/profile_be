@@ -35,6 +35,9 @@ import { UserModule } from './routers/user/user.module';
 import { JwtAuthStrategy } from './strategies/auth.strategy';
 import { TestModule } from './routers/test/test.module';
 import { RolesGuard } from './guards/role.guard';
+import { createKeyv } from '@keyv/redis';
+import { Keyv } from 'keyv';
+import { CacheableMemory } from 'cacheable';
 
 @Module({
   imports: [
