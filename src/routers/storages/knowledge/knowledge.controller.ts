@@ -71,10 +71,13 @@ export class KnowledgeController {
 
   @Public()
   @Get()
-  async findAll(@Query() queries: AQueries<KnowledgeEntity>) {
-    const results = await this.knowledgeService.findAll({
-      queries,
-    });
+  async findAll(@Query() queries: AQueries<KnowledgeEntity>, @ActiveUser() activeUser: TPayloadToken) {
+    const results = await this.knowledgeService.findAll(
+      {
+        queries,
+      },
+      activeUser,
+    );
 
     return new ResponseSuccess('Success', results);
   }
@@ -88,8 +91,8 @@ export class KnowledgeController {
 
   @Roles({ resource: 'knowledge', action: 'delete' })
   @Delete()
-  async remove(@Body() ids: string[]) {
-    const result = await this.knowledgeService.remove(ids);
+  async remove(@Body() ids: string[], @ActiveUser() activeUser: TPayloadToken) {
+    const result = await this.knowledgeService.remove(ids, activeUser);
     return new ResponseSuccess('Success', result);
   }
 }

@@ -42,6 +42,8 @@ export default tseslint.config(
           printWidth: 120,
         },
       ],
+      'require-await': 'off',
+      '@typescript-eslint/require-await': 'off',
     },
   },
 );

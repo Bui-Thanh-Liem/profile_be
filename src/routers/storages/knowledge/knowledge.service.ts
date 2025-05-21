@@ -1,10 +1,12 @@
 import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CacheService } from 'src/helpers/services/Cache.service';
 import { FileLocalService } from 'src/helpers/services/FileLocal.service';
 import { ICreateService, IFindAllService, IUpdateService } from 'src/interfaces/common.interface';
 import { IGetMulti } from 'src/interfaces/response.interface';
 import Exception from 'src/message-validations/exception.validation';
 import { UserService } from 'src/routers/user/user.service';
+import { TPayloadToken } from 'src/types/TPayloadToken.type';
 import { UtilBuilder } from 'src/utils/Builder.util';
 import { DeleteResult, In, Repository } from 'typeorm';
 import { KeywordEntity } from '../keyword/entities/keyword.entity';
@@ -21,6 +23,7 @@ export class KnowledgeService {
     private userService: UserService,
     private keywordService: KeywordService,
     private fileLocalService: FileLocalService,
+    private cacheService: CacheService,
 
     @InjectRepository(KnowledgeEntity)
     private knowledgeRepository: Repository<KnowledgeEntity>,
@@ -57,6 +60,14 @@ export class KnowledgeService {
         keywords: findKeywords,
         createdBy: creator,
       });
+
+      //
+      try {
+        await this.cacheService.deleteCacheByPattern(`knowledge:all:user-${activeUser.userId}`);
+      } catch (error) {
+        throw new BadRequestException('Error deleting cache');
+      }
+
       return await this.knowledgeRepository.save(dataCreate);
     } catch (error) {
       await this.fileLocalService.removeByFileNames([filename]);
@@ -97,25 +108,40 @@ export class KnowledgeService {
         updatedBy: editor,
       });
 
+      //
+      try {
+        await this.cacheService.deleteCacheByPattern(`knowledge:all:user-${activeUser.userId}`);
+      } catch (error) {
+        throw new BadRequestException('Error deleting cache');
+      }
+
       return newItem;
     } catch (error) {
       await this.fileLocalService.removeByFileNames([newFilename]);
     }
   }
 
-  async findAll({ queries }: IFindAllService<KnowledgeEntity>): Promise<IGetMulti<KnowledgeEntity>> {
+  async findAll(
+    { queries }: IFindAllService<KnowledgeEntity>,
+    activeUser: TPayloadToken,
+  ): Promise<IGetMulti<KnowledgeEntity>> {
     try {
+      const cacheKey = `knowledge:all:user-${activeUser.userId}:page-${queries.page}:limit-${queries.limit}`;
+      const dataInCache = await this.cacheService.getCache<IGetMulti<KnowledgeEntity>>(cacheKey);
+      if (dataInCache) return dataInCache;
+
       const queryBuilder = new UtilBuilder<KnowledgeEntity>(this.knowledgeRepository);
-      const { items, totalItems } = await queryBuilder.handleConditionQueries({
+      const results = await queryBuilder.handleConditionQueries({
         queries,
         user: null,
         searchField: 'name',
       });
 
-      return {
-        items,
-        totalItems,
-      };
+      //
+      await this.cacheService.setCache(cacheKey, results, 180);
+      await this.cacheService.addToKeyList(`knowledge:all:user-${activeUser.userId}`, cacheKey, 240);
+
+      return results;
     } catch (error) {
       throw new BadRequestException(error);
     }
@@ -145,7 +171,7 @@ export class KnowledgeService {
     return findItem;
   }
 
-  async remove(ids: string[]): Promise<DeleteResult[]> {
+  async remove(ids: string[], activeUser: TPayloadToken): Promise<DeleteResult[]> {
     //
     const findItems = await this.knowledgeRepository.findBy({ id: In(ids) });
 
@@ -158,6 +184,7 @@ export class KnowledgeService {
     await Promise.all(
       findItems?.map((item) => {
         try {
+          //
           this.fileLocalService.removeByFileNames([item.image]);
         } catch (error) {
           console.error(`Failed to remove image:::`, error);
@@ -167,6 +194,15 @@ export class KnowledgeService {
 
     //
     const itemDeleted = await Promise.all(ids.map((id) => this.knowledgeRepository.delete(id)));
+
+    //
+    try {
+      await this.cacheService.deleteCacheByPattern(`knowledge:all:user-${activeUser.userId}`);
+    } catch (error) {
+      throw new BadRequestException('Error deleting cache');
+    }
+
+    //
     return itemDeleted;
   }
 }

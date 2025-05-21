@@ -1,11 +1,13 @@
+import { createKeyv } from '@keyv/redis';
 import { BullModule } from '@nestjs/bullmq';
 import { CacheModule, CacheModuleOptions } from '@nestjs/cache-manager';
 import { ClassSerializerInterceptor, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { redisStore } from 'cache-manager-redis-store';
+import { CacheableMemory } from 'cacheable';
 import { RedisOptions } from 'ioredis';
+import { Keyv } from 'keyv';
 import { HealthController } from './app.controller';
 import { AppService } from './app.service';
 import { MysqlConfig, RedisConfig } from './configs/index';
@@ -13,6 +15,7 @@ import { CONSTANT_CONFIG, CONSTANT_ENV } from './constants/index';
 import { HttpExceptionFilter } from './filters/httpException.filter';
 import { TypeOrmExceptionFilter } from './filters/typeOrmException.filter';
 import { JwtAuthGuard } from './guards/auth.guard';
+import { RolesGuard } from './guards/role.guard';
 import { HelperModule } from './helpers/helper.module';
 import { ErrorInterceptor } from './interceptors/ErrorInterceptor.interceptor';
 import { QueueMailModule } from './libs/bull/queue-mail/queue-mail.module';
@@ -31,13 +34,9 @@ import { SkillModule } from './routers/skill/skill.module';
 import { KeyWordModule } from './routers/storages/keyword/keyword.module';
 import { KnowledgeModule } from './routers/storages/knowledge/knowledge.module';
 import { LikeModule } from './routers/storages/like/like.module';
+import { TestModule } from './routers/test/test.module';
 import { UserModule } from './routers/user/user.module';
 import { JwtAuthStrategy } from './strategies/auth.strategy';
-import { TestModule } from './routers/test/test.module';
-import { RolesGuard } from './guards/role.guard';
-import { createKeyv } from '@keyv/redis';
-import { Keyv } from 'keyv';
-import { CacheableMemory } from 'cacheable';
 
 @Module({
   imports: [
@@ -56,22 +55,25 @@ import { CacheableMemory } from 'cacheable';
         configService.get<TypeOrmModuleOptions>(CONSTANT_CONFIG.MYSQL) || {},
     }),
 
-    // cache
+    // Load cache
     CacheModule.registerAsync({
       isGlobal: true,
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService): Promise<CacheModuleOptions> => {
-        const redisConfig = configService.get('redis');
-        if (!redisConfig) {
-          throw new Error('Redis configuration not found');
+        const config = configService.get<RedisOptions>(CONSTANT_CONFIG.REDIS);
+
+        if (!config) {
+          throw new Error('Cache configuration not found');
         }
 
         return {
-          store: await redisStore({
-            url: `redis://${redisConfig.host}:${redisConfig.port}`, // Thay bằng URL Redis của bạn
-            ttl: 60 * 1000, // Thời gian sống của cache (miliseconds, ví dụ: 60 giây)
-          }),
+          stores: [
+            new Keyv({
+              store: new CacheableMemory({ ttl: 60000, lruSize: 5000 }),
+            }),
+            createKeyv(`redis://${config.host}:${config.port}`),
+          ],
         };
       },
     }),

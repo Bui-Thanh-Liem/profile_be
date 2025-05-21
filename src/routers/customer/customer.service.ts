@@ -115,7 +115,7 @@ export class CustomerService {
         subject: '"LiemDev 👻" <no-reply@gmail.com>',
         templateName: 'otp.template',
         variables: {
-          rootLogo: `${process.env.CLIENT_HOST}/logo.png`,
+          rootLogo: `${process.env.SERVER_HOST}/logo.png`,
           rootUrlWeb: `${process.env.CLIENT_HOST}`,
           requestTime: new Date(),
           otpCode: otp,

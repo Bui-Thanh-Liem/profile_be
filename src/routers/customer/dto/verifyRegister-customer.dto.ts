@@ -28,7 +28,7 @@ export class VerifyRegisterDto implements Partial<ICustomer> {
   password: string;
 
   @Optional()
-  @ApiProperty({ default: 'Admin123@' })
+  @ApiProperty({ default: 'customer123@' })
   @Match('password', {
     message: 'Passwords do not match',
   })
