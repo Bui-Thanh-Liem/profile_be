@@ -357,7 +357,6 @@ export class UserService implements OnModuleInit {
       for (const chunk of recipientChunks) {
         await Promise.all(
           chunk.map((data) => {
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
             const dataCreate = this.userRepository.create({ ...data } as any);
             this.userRepository.save(dataCreate);
           }),
