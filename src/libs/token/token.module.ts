@@ -1,15 +1,13 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from '../../routers/user/user.module';
+import { Public } from 'src/decorators/public.decorator';
 import { TokenEntity } from './entities/token.entity';
 import { TokenService } from './token.service';
-import { JwtModule } from '@nestjs/jwt';
-import { Public } from 'src/decorators/public.decorator';
-import { CustomerModule } from 'src/routers/customer/customer.module';
 
 @Public()
 @Module({
-  imports: [TypeOrmModule.forFeature([TokenEntity]), UserModule, JwtModule, forwardRef(() => CustomerModule)],
+  imports: [TypeOrmModule.forFeature([TokenEntity]), JwtModule],
   providers: [TokenService],
   exports: [TokenService],
 })

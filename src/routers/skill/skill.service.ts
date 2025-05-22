@@ -1,11 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  Logger,
-  NotFoundException,
-  OnApplicationBootstrap,
-} from '@nestjs/common';
+import { ConflictException, Injectable, Logger, NotFoundException, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FileLocalService } from 'src/helpers/services/FileLocal.service';
 import { ICreateService, IUpdateService } from 'src/interfaces/common.interface';
@@ -37,11 +30,7 @@ export class SkillService implements OnApplicationBootstrap {
     const filename = (payload.image as Express.Multer.File).filename;
 
     try {
-      const creator = await this.userService.findOneById(activeUser.userId);
-      if (!creator) {
-        this.logger.debug('Not found creator');
-        throw new BadRequestException(Exception.bad());
-      }
+      const creator = await this.userService.verifyUser(activeUser.userId);
 
       //
       const findItem = await this.skillRepository.findOneBy({
@@ -91,10 +80,7 @@ export class SkillService implements OnApplicationBootstrap {
 
     try {
       //
-      const editor = await this.userService.findOneById(activeUser.userId);
-      if (!editor) {
-        throw new BadRequestException(Exception.bad());
-      }
+      const editor = await this.userService.verifyUser(activeUser.userId);
 
       // check exist
       const findItem = await this.skillRepository.findOneBy({ id });

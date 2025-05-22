@@ -3,13 +3,14 @@ import { Constants } from 'liemdev-profile-lib';
 import AQueries from 'src/abstracts/AQuery.abstract';
 import { ResponseSuccess } from 'src/classes/response.class';
 import { ActiveUser } from 'src/decorators/activeUser.decorator';
+import { Roles } from 'src/decorators/role.decorator';
 import { TPayloadToken } from 'src/types/TPayloadToken.type';
 import { BlockUserDto } from './dto/block-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { RevokeUserDto } from './dto/revoke-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entities/user.entity';
 import { UserService } from './user.service';
-import { Roles } from 'src/decorators/role.decorator';
 
 @Controller(Constants.CONSTANT_ROUTE.USER)
 export class UserController {
@@ -69,6 +70,13 @@ export class UserController {
   @Patch('block/:id')
   async block(@Param('id') payload: BlockUserDto) {
     const result = await this.userService.block(payload.id);
+    return new ResponseSuccess('Success', result);
+  }
+
+  @Roles({ resource: 'user', action: 'update' })
+  @Patch('revoke')
+  async revoke(@Body() payload: RevokeUserDto) {
+    const result = await this.userService.revoke(payload.userIds);
     return new ResponseSuccess('Success', result);
   }
 

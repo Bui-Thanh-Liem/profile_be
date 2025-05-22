@@ -21,6 +21,7 @@ export class JwtAuthGuard extends AuthGuard('jwt-auth') {
     this.logger.debug('Run 2');
     const isPublic = this.reflector.get<boolean>('isPublic', context.getHandler());
     const isCustomer = this.reflector.get<boolean>('isCustomer', context.getHandler());
+    const request = context.switchToHttp().getRequest<Request>();
 
     // cho đi qua
     if (isPublic) {
@@ -32,7 +33,6 @@ export class JwtAuthGuard extends AuthGuard('jwt-auth') {
     this.logger.debug(`isCustomer:::, ${isCustomer}`);
     if (isCustomer) {
       this.logger.debug('Customer route detected');
-      const request = context.switchToHttp().getRequest<Request>();
       const tokenCustomer = request.cookies[CONSTANT_TOKEN.TOKEN_NAME_CUSTOMER]; // Lấy token từ cookie
 
       if (!tokenCustomer) {
@@ -40,7 +40,6 @@ export class JwtAuthGuard extends AuthGuard('jwt-auth') {
       }
 
       try {
-        // Sử dụng await để đợi promise hoàn thành
         const decoded = await this.tokenService.verifyAccessToken(tokenCustomer);
         request['customer'] = decoded;
         return true;
@@ -51,18 +50,27 @@ export class JwtAuthGuard extends AuthGuard('jwt-auth') {
     }
 
     // 1.Xác thực theo strategy jwt-auth (Passport) cho phần mặc định
-    // chuyển tới xử lý strategy
-    return super.canActivate(context) as boolean;
+    // chuyển tới xử lý strategy - thực thi handleRequest khi strategy thành công
+    const result = (await super.canActivate(context)) as boolean;
+
+    // Sau khi xác thực strategy thành công, kiểm tra token có bị revoke
+    const token = request.cookies[CONSTANT_TOKEN.TOKEN_NAME_USER];
+    if (token) {
+      await this.tokenService.verifyAccessToken(token); // có thể check DB hoặc blacklist
+      this.logger.debug('Valid token at canActivate');
+    }
+
+    return result;
   }
 
-  //
+  // - 3
   handleRequest<TUser = any>(err: any, user: any, info: any, context: ExecutionContext, status?: any): TUser {
     this.logger.debug('Tiếp nhận toàn bộ thông tin');
     console.log('user:::', user);
     console.log('err:::', err);
     console.log('info:::', info);
-    const req = context.switchToHttp().getRequest<Request>();
-    const res = context.switchToHttp().getResponse<Response>();
+    // const req = context.switchToHttp().getRequest<Request>();
+    // const res = context.switchToHttp().getResponse<Response>();
 
     if (err || !user) {
       console.log('Thấy dòng này là lỗi tại guard tại auth');

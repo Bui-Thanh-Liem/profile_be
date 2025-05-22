@@ -71,13 +71,10 @@ export class KnowledgeController {
 
   @Public()
   @Get()
-  async findAll(@Query() queries: AQueries<KnowledgeEntity>, @ActiveUser() activeUser: TPayloadToken) {
-    const results = await this.knowledgeService.findAll(
-      {
-        queries,
-      },
-      activeUser,
-    );
+  async findAll(@Query() queries: AQueries<KnowledgeEntity>) {
+    const results = await this.knowledgeService.findAll({
+      queries,
+    });
 
     return new ResponseSuccess('Success', results);
   }

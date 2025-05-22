@@ -1,6 +1,5 @@
 import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CacheService } from 'src/helpers/services/Cache.service';
 import { FileLocalService } from 'src/helpers/services/FileLocal.service';
 import { ICreateService, IFindAllService, IUpdateService } from 'src/interfaces/common.interface';
 import { IGetMulti } from 'src/interfaces/response.interface';
@@ -23,7 +22,7 @@ export class KnowledgeService {
     private userService: UserService,
     private keywordService: KeywordService,
     private fileLocalService: FileLocalService,
-    private cacheService: CacheService,
+    // private cacheService: CacheService,
 
     @InjectRepository(KnowledgeEntity)
     private knowledgeRepository: Repository<KnowledgeEntity>,
@@ -35,11 +34,7 @@ export class KnowledgeService {
 
     try {
       //
-      const creator = await this.userService.findOneById(activeUser.userId);
-      if (!creator) {
-        this.logger.debug('Not found creator');
-        throw new BadRequestException(Exception.bad());
-      }
+      const creator = await this.userService.verifyUser(activeUser.userId);
 
       //
       const findItem = await this.knowledgeRepository.findOneBy({ name });
@@ -62,11 +57,11 @@ export class KnowledgeService {
       });
 
       //
-      try {
-        await this.cacheService.deleteCacheByPattern(`knowledge:all:user-${activeUser.userId}`);
-      } catch (error) {
-        throw new BadRequestException('Error deleting cache');
-      }
+      // try {
+      //   await this.cacheService.deleteCacheByPattern(`knowledge:all:user-${activeUser.userId}`);
+      // } catch (error) {
+      //   throw new BadRequestException('Error deleting cache');
+      // }
 
       return await this.knowledgeRepository.save(dataCreate);
     } catch (error) {
@@ -80,10 +75,7 @@ export class KnowledgeService {
     const newFilename = newImage?.filename;
 
     try {
-      const editor = await this.userService.findOneById(activeUser.userId);
-      if (!editor) {
-        throw new BadRequestException(Exception.bad());
-      }
+      const editor = await this.userService.verifyUser(activeUser.userId);
 
       // check exist
       const findItem = await this.knowledgeRepository.findOneBy({ id });
@@ -109,11 +101,11 @@ export class KnowledgeService {
       });
 
       //
-      try {
-        await this.cacheService.deleteCacheByPattern(`knowledge:all:user-${activeUser.userId}`);
-      } catch (error) {
-        throw new BadRequestException('Error deleting cache');
-      }
+      // try {
+      //   await this.cacheService.deleteCacheByPattern(`knowledge:all:user-${activeUser.userId}`);
+      // } catch (error) {
+      //   throw new BadRequestException('Error deleting cache');
+      // }
 
       return newItem;
     } catch (error) {
@@ -121,14 +113,11 @@ export class KnowledgeService {
     }
   }
 
-  async findAll(
-    { queries }: IFindAllService<KnowledgeEntity>,
-    activeUser: TPayloadToken,
-  ): Promise<IGetMulti<KnowledgeEntity>> {
+  async findAll({ queries }: IFindAllService<KnowledgeEntity>): Promise<IGetMulti<KnowledgeEntity>> {
     try {
-      const cacheKey = `knowledge:all:user-${activeUser.userId}:page-${queries.page}:limit-${queries.limit}`;
-      const dataInCache = await this.cacheService.getCache<IGetMulti<KnowledgeEntity>>(cacheKey);
-      if (dataInCache) return dataInCache;
+      // const cacheKey = `knowledge:all:user-${activeUser.userId}:page-${queries.page}:limit-${queries.limit}`;
+      // const dataInCache = await this.cacheService.getCache<IGetMulti<KnowledgeEntity>>(cacheKey);
+      // if (dataInCache) return dataInCache;
 
       const queryBuilder = new UtilBuilder<KnowledgeEntity>(this.knowledgeRepository);
       const results = await queryBuilder.handleConditionQueries({
@@ -138,8 +127,8 @@ export class KnowledgeService {
       });
 
       //
-      await this.cacheService.setCache(cacheKey, results, 180);
-      await this.cacheService.addToKeyList(`knowledge:all:user-${activeUser.userId}`, cacheKey, 240);
+      // await this.cacheService.setCache(cacheKey, results, 180);
+      // await this.cacheService.addToKeyList(`knowledge:all:user-${activeUser.userId}`, cacheKey, 240);
 
       return results;
     } catch (error) {
@@ -196,11 +185,11 @@ export class KnowledgeService {
     const itemDeleted = await Promise.all(ids.map((id) => this.knowledgeRepository.delete(id)));
 
     //
-    try {
-      await this.cacheService.deleteCacheByPattern(`knowledge:all:user-${activeUser.userId}`);
-    } catch (error) {
-      throw new BadRequestException('Error deleting cache');
-    }
+    // try {
+    //   await this.cacheService.deleteCacheByPattern(`knowledge:all:user-${activeUser.userId}`);
+    // } catch (error) {
+    //   throw new BadRequestException('Error deleting cache');
+    // }
 
     //
     return itemDeleted;

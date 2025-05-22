@@ -227,7 +227,7 @@ export class CustomerService {
       this.tokenService.verifyAccessToken(refreshToken);
 
       // 1. Thu hồi token để kiểm tra lịch sử đăng nhập
-      const revoked = await this.tokenService.revokeToken({ refreshToken: refreshToken });
+      const revoked = await this.tokenService.revokeTokenToLogout({ refreshToken: refreshToken });
       if (!revoked) {
         throw new BadRequestException('Revoke token fail');
       }

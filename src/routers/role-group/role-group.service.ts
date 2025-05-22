@@ -7,11 +7,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UtilBuilder } from 'src/utils/Builder.util';
 import { ICreateService, IFindAllService, IUpdateService } from 'src/interfaces/common.interface';
 import { IRoleGroup } from 'src/interfaces/models.interface';
 import { IGetMulti } from 'src/interfaces/response.interface';
 import Exception from 'src/message-validations/exception.validation';
+import { UtilBuilder } from 'src/utils/Builder.util';
 import { In, Not, Repository } from 'typeorm';
 import { RoleService } from '../role/role.service';
 import { UserService } from '../user/user.service';
@@ -35,10 +35,7 @@ export class RoleGroupService {
   async create({ payload, activeUser }: ICreateService<CreateRoleGroupDto>): Promise<RoleGroupEntity> {
     const { name, roles } = payload;
     //
-    const creator = await this.userService.findOneById(activeUser.userId);
-    if (!creator) {
-      throw new BadRequestException(Exception.bad());
-    }
+    const creator = await this.userService.verifyUser(activeUser.userId);
 
     // Check exist name
     const findItemByName = await this.roleGroupRepository.findOneBy({
@@ -64,10 +61,7 @@ export class RoleGroupService {
 
   async findAll({ queries, activeUser }: IFindAllService<IRoleGroup>): Promise<IGetMulti<RoleGroupEntity>> {
     //
-    const findUser = await this.userService.findOneById(activeUser.userId);
-    if (!findUser) {
-      throw new BadRequestException(Exception.bad());
-    }
+    const findUser = await this.userService.verifyUser(activeUser.userId);
 
     //
     const queryBuilder = new UtilBuilder<RoleGroupEntity>(this.roleGroupRepository);
@@ -110,10 +104,7 @@ export class RoleGroupService {
     const { roles } = payload;
 
     //
-    const editor = await this.userService.findOneById(activeUser.userId);
-    if (!editor) {
-      throw new BadRequestException(Exception.bad());
-    }
+    const editor = await this.userService.verifyUser(activeUser.userId);
 
     // check exist
     const findItem = await this.roleGroupRepository.findOneBy({ id });

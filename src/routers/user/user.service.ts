@@ -13,6 +13,7 @@ import { ICreateService, IFindAllService, IUpdateService } from 'src/interfaces/
 import { IUser } from 'src/interfaces/models.interface';
 import { IGetMulti } from 'src/interfaces/response.interface';
 import { QueueMailService } from 'src/libs/bull/queue-mail/queue-mail.service';
+import { TokenService } from 'src/libs/token/token.service';
 import Exception from 'src/message-validations/exception.validation';
 import { UtilArray } from 'src/utils/Array.util';
 import { UtilBuilder } from 'src/utils/Builder.util';
@@ -37,6 +38,7 @@ export class UserService implements OnModuleInit {
     @Inject(forwardRef(() => RoleGroupService))
     private roleGroupService: RoleGroupService,
 
+    private tokenService: TokenService,
     private queueMailService: QueueMailService,
   ) {}
 
@@ -48,12 +50,7 @@ export class UserService implements OnModuleInit {
     const { email: emailPayload, fullName, phone, roles, roleGroups, gender } = payload;
 
     // creator
-    const creator = await this.userRepository.findOneBy({
-      id: activeUser.userId,
-    });
-    if (!creator) {
-      throw new BadRequestException(Exception.bad());
-    }
+    const creator = await this.verifyUser(activeUser.userId);
 
     // Check exist email
     const findItemByEmail = await this.userRepository.findOneBy({
@@ -123,12 +120,7 @@ export class UserService implements OnModuleInit {
 
   async findAll({ queries, activeUser }: IFindAllService<UserEntity>): Promise<IGetMulti<UserEntity>> {
     //
-    const findUser = await this.userRepository.findOneBy({
-      id: activeUser.userId,
-    });
-    if (!findUser) {
-      throw new BadRequestException(Exception.bad());
-    }
+    const findUser = await this.verifyUser(activeUser.userId);
 
     // Cách 1:
     // const exists = await this.userRepository.exists({ where: { id: userActionId } });
@@ -208,12 +200,7 @@ export class UserService implements OnModuleInit {
     const { roles, roleGroups, email: emailPayload, fullName, phone } = payload;
 
     //
-    const editor = await this.userRepository.findOneBy({
-      id: activeUser.userId,
-    });
-    if (!editor) {
-      throw new BadRequestException(Exception.notfound('Editor'));
-    }
+    const editor = await this.verifyUser(activeUser.userId);
 
     // check exist
     const findItem = await this.userRepository.findOneBy({ id });
@@ -294,6 +281,19 @@ export class UserService implements OnModuleInit {
     return itemUpdated;
   }
 
+  async revoke(ids: string[]): Promise<boolean> {
+    // check exist
+    const findItems = await this.userRepository.find({ where: { id: In(ids) } });
+    if (findItems.length <= 0) {
+      throw new NotFoundException(Exception.notfound('User'));
+    }
+
+    //
+    await this.tokenService.revokeToken({ userIds: ids });
+
+    return true;
+  }
+
   async remove(ids: string[]): Promise<true> {
     //
     const findItems = await this.userRepository.findBy({ id: In(ids) });
@@ -333,6 +333,19 @@ export class UserService implements OnModuleInit {
 
     const createData = this.userRepository.create(dataAdmin);
     await this.userRepository.save(createData);
+  }
+
+  async verifyUser(id: string): Promise<UserEntity> {
+    const user = await this.userRepository.findOneBy({
+      id,
+      block: false,
+    });
+
+    if (!user) {
+      throw new BadRequestException(Exception.bad());
+    }
+
+    return user;
   }
 
   async test(data: Partial<IUser>[]): Promise<boolean> {

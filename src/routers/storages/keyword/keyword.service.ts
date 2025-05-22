@@ -1,11 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  Logger,
-  NotFoundException,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { ConflictException, Injectable, Logger, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Enums } from 'liemdev-profile-lib';
 import { ICreateService, IFindAllService, IUpdateService } from 'src/interfaces/common.interface';
@@ -31,10 +24,7 @@ export class KeywordService {
 
   async create({ payload, activeUser }: ICreateService<CreateKeyWordDto>): Promise<KeywordEntity> {
     //
-    const creator = await this.userService.findOneById(activeUser.userId);
-    if (!creator) {
-      throw new BadRequestException(Exception.bad());
-    }
+    const creator = await this.userService.verifyUser(activeUser.userId);
 
     // Check exist name
     const findItemByName = await this.keywordRepository.findOneBy({
@@ -109,10 +99,7 @@ export class KeywordService {
 
   async update({ id, payload, activeUser }: IUpdateService<UpdateKeyWordDto>): Promise<KeywordEntity> {
     //
-    const editor = await this.userService.findOneById(activeUser.userId);
-    if (!editor) {
-      throw new BadRequestException(Exception.bad());
-    }
+    const editor = await this.userService.verifyUser(activeUser.userId);
 
     // check exist
     const findItem = await this.keywordRepository.findOneBy({ id });

@@ -3,7 +3,7 @@ class Exception {
     return `${field?.toLocaleUpperCase()} already exists`;
   }
   loginAgain() {
-    return `Please log in again`;
+    return `Please login again`;
   }
   bad() {
     return `Error, please try again`;
@@ -18,10 +18,10 @@ class Exception {
     return `Invalid ${object}`;
   }
   invalidToken() {
-    return `Token is invalid`;
+    return `Token is invalid, login again`;
   }
   expiredToken() {
-    return `Token is expired`;
+    return `Token is expired, login again`;
   }
   fail(object?: string) {
     return `${object} fail`;

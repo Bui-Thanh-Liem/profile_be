@@ -182,10 +182,7 @@ export class AuthService {
       this.tokenService.verifyRefreshToken(refreshToken);
 
       // 1. Thu hồi token để kiểm tra lịch sử đăng nhập
-      const revoked = await this.tokenService.revokeToken({ refreshToken: refreshToken });
-      if (!revoked) {
-        throw new BadRequestException('Revoke token fail');
-      }
+      await this.tokenService.revokeTokenToLogout({ refreshToken: refreshToken });
 
       // 2. Xoá token khỏi trong database luôn
       /**

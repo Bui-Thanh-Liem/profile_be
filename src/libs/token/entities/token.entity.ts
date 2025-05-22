@@ -20,7 +20,7 @@ export class TokenEntity extends ABaseEntity {
   customer: Omit<CustomerEntity, 'password'>;
 
   @Column({ type: 'boolean', default: false })
-  isRevoked: boolean; // Lưu trạng thái token (đã bị thu hồi chưa).
+  isRevoked: boolean; // Lưu trạng thái token (đã bị thu hồi chưa). cho người dùng out khỏi phiên làm việc hiện tại của token, ngay cả khi token con hạn
 
   @Column({ type: 'timestamp' })
   expiresAt: Date; // Thời gian hết hạn của access token.

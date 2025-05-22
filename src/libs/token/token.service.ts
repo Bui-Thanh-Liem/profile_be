@@ -1,30 +1,21 @@
-import { BadRequestException, forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IResultRefreshToken, IResultSignToken } from 'src/interfaces/result.interface';
 import Exception from 'src/message-validations/exception.validation';
+import { CustomerEntity } from 'src/routers/customer/entities/customer.entity';
 import { TPayloadToken } from 'src/types/TPayloadToken.type';
-import { isExitItem } from 'src/utils/isPredicates.util';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { UserEntity } from '../../routers/user/entities/user.entity';
-import { UserService } from '../../routers/user/user.service';
-import { RevokeTokenDto } from './dto/revoke-token.dto';
+import { RevokeTokenDto, RevokeTokenToLogoutDto } from './dto/revoke-token.dto';
 import { SignTokenDto } from './dto/sign-token.dto';
 import { TokenEntity } from './entities/token.entity';
-import { CustomerEntity } from 'src/routers/customer/entities/customer.entity';
-import { CustomerService } from 'src/routers/customer/customer.service';
 @Injectable()
 export class TokenService {
   constructor(
     @InjectRepository(TokenEntity)
     private tokenRepository: Repository<TokenEntity>,
     private jwtService: JwtService,
-
-    @Inject(forwardRef(() => UserService))
-    private userService: UserService,
-
-    @Inject(forwardRef(() => CustomerService))
-    private customerService: CustomerService,
   ) {}
 
   async signToken(payload: SignTokenDto): Promise<IResultSignToken> {
@@ -63,6 +54,7 @@ export class TokenService {
     };
   }
 
+  //
   async refreshToken(refreshToken: string): Promise<IResultRefreshToken> {
     // Tìm refresh token trong database
     const findToken = await this.tokenRepository.findOne({
@@ -125,28 +117,66 @@ export class TokenService {
     };
   }
 
+  //
   async revokeToken(payload: RevokeTokenDto) {
-    const { token, refreshToken } = payload;
-    if (!token && !refreshToken) return false;
+    try {
+      const { userIds } = payload;
+      if (userIds.length <= 0) return false;
 
-    //
-    const findToken = await this.tokenRepository.findOne({
-      where: [{ token }, { refreshToken }],
-    });
+      //
+      const tokens = await this.tokenRepository.find({
+        where: {
+          user: In(userIds),
+        },
+      });
 
-    //
-    if (!isExitItem(findToken)) {
-      throw new UnauthorizedException(Exception.notfound('Token'));
+      //
+      if (tokens.length <= 0) {
+        throw new UnauthorizedException(Exception.notfound('Token'));
+      }
+
+      await Promise.all(
+        tokens.map((token) => {
+          this.tokenRepository.save(this.tokenRepository.create({ ...token, isRevoked: true }));
+        }),
+      );
+
+      //
+      return true;
+    } catch (error) {
+      console.log('Revoke token fail !');
+
+      throw error;
     }
+  }
 
-    //
-    const revoked = await this.tokenRepository.save({
-      ...findToken,
-      isRevoked: true,
-    });
+  //
+  async revokeTokenToLogout(payload: RevokeTokenToLogoutDto) {
+    try {
+      const { token, refreshToken } = payload;
+      if (!token && !refreshToken) return false;
 
-    //
-    return !!revoked.id;
+      //
+      const findToken = await this.tokenRepository.findOne({
+        where: [{ token }, { refreshToken }],
+      });
+
+      //
+      if (!findToken) {
+        throw new UnauthorizedException(Exception.notfound('Token'));
+      }
+
+      await this.tokenRepository.save({
+        ...findToken,
+        isRevoked: true,
+      });
+
+      //
+      return true;
+    } catch (error) {
+      console.log('Revoke token fail !');
+      throw error;
+    }
   }
 
   //
@@ -160,6 +190,16 @@ export class TokenService {
 
   async verifyAccessToken<T extends object>(token: string): Promise<T> {
     try {
+      const exist = await this.tokenRepository.findOneBy({ token });
+
+      if (!exist) {
+        throw new UnauthorizedException('Token not found');
+      }
+
+      if (exist.isRevoked) {
+        throw new UnauthorizedException('Token revoked');
+      }
+
       return await this.jwtService.verifyAsync(token, {
         secret: process.env.SECRET_ACCESS_KEY,
       });
@@ -169,9 +209,22 @@ export class TokenService {
   }
 
   async verifyRefreshToken(token: string): Promise<TPayloadToken> {
-    return await this.jwtService.verifyAsync(token, {
-      secret: process.env.SECRET_REFRESH_KEY,
-    });
+    try {
+      const exist = await this.tokenRepository.findOneBy({ refreshToken: token });
+
+      if (!exist) {
+        throw new UnauthorizedException('Token not found');
+      }
+
+      if (exist.isRevoked) {
+        throw new UnauthorizedException('Token revoked');
+      }
+      return await this.jwtService.verifyAsync(token, {
+        secret: process.env.SECRET_REFRESH_KEY,
+      });
+    } catch (error) {
+      throw new UnauthorizedException(error);
+    }
   }
 
   getTimeExpired(num: number) {
