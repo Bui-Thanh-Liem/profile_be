@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UploadedFile } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UploadedFile } from '@nestjs/common';
 import { Constants } from 'liemdev-profile-lib';
 import { ResponseSuccess } from 'src/classes/response.class';
 import { ActiveUser } from 'src/decorators/activeUser.decorator';
@@ -9,6 +9,8 @@ import { TPayloadToken } from 'src/types/TPayloadToken.type';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { SkillService } from './skill.service';
+import AQueries from 'src/abstracts/AQuery.abstract';
+import { SkillEntity } from './entities/skill.entity';
 
 @Controller(Constants.CONSTANT_ROUTE.SKILL)
 export class SkillController {
@@ -60,8 +62,8 @@ export class SkillController {
 
   @Get()
   @Public()
-  async findAll() {
-    const result = await this.skillService.findAll();
+  async findAll(@Query() queries: AQueries<SkillEntity>) {
+    const result = await this.skillService.findAll({ queries });
     return new ResponseSuccess('Success', result);
   }
 

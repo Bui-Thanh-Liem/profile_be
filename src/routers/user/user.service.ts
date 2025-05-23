@@ -137,7 +137,6 @@ export class UserService implements OnModuleInit {
     //
     const queryBuilder = new UtilBuilder<UserEntity>(this.userRepository, {
       excludeJoin: ['tokens'],
-      exclude: ['email'],
     });
     const { items, totalItems } = await queryBuilder.handleConditionQueries({
       queries,

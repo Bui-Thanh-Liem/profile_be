@@ -1,9 +1,17 @@
-import { ConflictException, Injectable, Logger, NotFoundException, OnApplicationBootstrap } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+  OnApplicationBootstrap,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FileLocalService } from 'src/helpers/services/FileLocal.service';
-import { ICreateService, IUpdateService } from 'src/interfaces/common.interface';
+import { ICreateService, IFindAllService, IUpdateService } from 'src/interfaces/common.interface';
 import { IGetMulti } from 'src/interfaces/response.interface';
 import Exception from 'src/message-validations/exception.validation';
+import { UtilBuilder } from 'src/utils/Builder.util';
 import { DeleteResult, In, Repository } from 'typeorm';
 import { UserService } from '../user/user.service';
 import { CreateSkillDto } from './dto/create-skill.dto';
@@ -53,18 +61,18 @@ export class SkillService implements OnApplicationBootstrap {
     }
   }
 
-  async findAll(): Promise<IGetMulti<SkillEntity>> {
-    const [items, totalItems] = await this.skillRepository.findAndCount({
-      relations: {
-        createdBy: true,
-        updatedBy: true,
-      },
-    });
-
-    return {
-      items,
-      totalItems,
-    };
+  async findAll({ queries }: IFindAllService<SkillEntity>): Promise<IGetMulti<SkillEntity>> {
+    try {
+      const queryBuilder = new UtilBuilder<SkillEntity>(this.skillRepository);
+      const results = await queryBuilder.handleConditionQueries({
+        queries,
+        user: null,
+        searchField: 'name',
+      });
+      return results;
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
   }
 
   async findOneById(id: string) {
