@@ -25,8 +25,16 @@ export class KnowledgeEntity extends ABaseEntity {
   @Column({ type: 'int', nullable: true, default: 0 })
   rate: number;
 
-  @Column({ type: 'int', nullable: true, default: 0 })
-  like: number;
+  @ManyToMany(() => UserEntity, { onDelete: 'CASCADE' })
+  @JoinTable({
+    name: 'knowledge_likes',
+    joinColumn: { name: 'knowledge_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
+  })
+  likes: UserEntity[];
+
+  @Column({ type: 'int', default: 0 })
+  numberLike: number;
 
   @ManyToMany(() => KeywordEntity, (keyword) => keyword.knowledge)
   @JoinTable({

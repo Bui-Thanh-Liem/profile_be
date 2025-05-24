@@ -44,6 +44,17 @@ export class KnowledgeController {
     return new ResponseSuccess('Success', result);
   }
 
+  @Public()
+  @Post(':id/like')
+  async toggleLike(@Param('id') productId: string, @ActiveUser() activeUser: TPayloadToken) {
+    const { action, knowledge } = await this.knowledgeService.toggleLike(productId, activeUser.userId);
+
+    return new ResponseSuccess(`Product ${action} successfully`, {
+      productId: knowledge.id,
+      likesCount: knowledge.likes?.length || 0,
+    });
+  }
+
   @Roles({ resource: 'knowledge', action: 'update' })
   @Patch(':id')
   @UploadSingleFile()

@@ -1,4 +1,11 @@
-import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CacheService } from 'src/helpers/services/Cache.service';
 import { FileLocalService } from 'src/helpers/services/FileLocal.service';
@@ -15,6 +22,7 @@ import { KeywordService } from '../keyword/keyword.service';
 import { CreateKnowledgeDto } from './dto/create-knowledge.dto';
 import { UpdateKnowledgeDto } from './dto/update-knowledge.dto';
 import { KnowledgeEntity } from './entities/knowledge.entity';
+import { UserService } from 'src/routers/user/user.service';
 
 @Injectable()
 export class KnowledgeService {
@@ -27,6 +35,8 @@ export class KnowledgeService {
 
     @InjectRepository(KnowledgeEntity)
     private knowledgeRepository: Repository<KnowledgeEntity>,
+
+    private userService: UserService,
   ) {}
 
   async create({ payload, activeUser }: ICreateService<CreateKnowledgeDto>) {
@@ -197,5 +207,48 @@ export class KnowledgeService {
 
     //
     return itemDeleted;
+  }
+
+  async toggleLike(
+    productId: string,
+    userId: string,
+  ): Promise<{ action: 'liked' | 'unliked'; knowledge: KnowledgeEntity }> {
+    //
+    const knowledge = await this.knowledgeRepository.findOne({
+      where: { id: productId },
+      relations: ['likes'],
+    });
+    if (!knowledge) {
+      throw new NotFoundException('Knowledge not found');
+    }
+
+    //
+    const key = createKeyUserActive(userId);
+    const userActive = await this.cacheService.getCache<UserEntity>(key);
+
+    const hasLiked = knowledge.likes?.some((u) => u.id === userId);
+    knowledge.likes = knowledge.likes || [];
+
+    if (hasLiked) {
+      // Unlike: Remove user from likes
+      knowledge.likes = knowledge.likes.filter((u) => u.id !== userId);
+      knowledge.numberLike = Math.max(0, knowledge.numberLike - 1);
+    } else {
+      // Like: Add user to likes
+      knowledge.likes.push(userActive);
+      knowledge.numberLike = (knowledge.numberLike || 0) + 1;
+    }
+
+    try {
+      await this.knowledgeRepository.save(knowledge);
+      // Clear cache to reflect updated likes
+      await this.cacheService.deleteCacheByPattern(`Knowledge:${userId}`);
+      return {
+        action: hasLiked ? 'unliked' : 'liked',
+        knowledge,
+      };
+    } catch (error) {
+      throw new InternalServerErrorException(`Could not ${hasLiked ? 'remove' : 'add'} like, please try again later.`);
+    }
   }
 }

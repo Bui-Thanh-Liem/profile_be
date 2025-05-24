@@ -33,7 +33,6 @@ import { SendMailModule } from './routers/send-mail/send-mail.module';
 import { SkillModule } from './routers/skill/skill.module';
 import { KeyWordModule } from './routers/storages/keyword/keyword.module';
 import { KnowledgeModule } from './routers/storages/knowledge/knowledge.module';
-import { LikeModule } from './routers/storages/like/like.module';
 import { TestModule } from './routers/test/test.module';
 import { UserModule } from './routers/user/user.module';
 import { JwtAuthStrategy } from './strategies/auth.strategy';
@@ -107,7 +106,6 @@ import { JwtAuthStrategy } from './strategies/auth.strategy';
     KnowledgeModule,
     AboutModule,
     SkillModule,
-    LikeModule,
     TestModule,
   ],
   controllers: [HealthController],
