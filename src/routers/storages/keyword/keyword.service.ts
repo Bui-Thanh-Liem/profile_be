@@ -7,7 +7,7 @@ import { IGetMulti } from 'src/interfaces/response.interface';
 import Exception from 'src/message-validations/exception.validation';
 import { UserEntity } from 'src/routers/user/entities/user.entity';
 import { UtilBuilder } from 'src/utils/Builder.util';
-import { createKeyUserActive } from 'src/utils/createKeyUserActive';
+import { createKeyUserActive } from 'src/utils/createKeyCache';
 import { In, Not, Repository } from 'typeorm';
 import { CreateKeyWordDto } from './dto/create-keyword.dto';
 import { UpdateKeyWordDto } from './dto/update-keyword.dto';

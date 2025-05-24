@@ -1,8 +1,11 @@
-import { Controller, Get, HttpCode, Logger, Req } from '@nestjs/common';
-import { Request } from 'express';
+import { Controller, Get, HttpCode, Logger } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ResponseSuccess } from './classes/response.class';
+import { ActiveCustomer } from './decorators/activeCustomer.decorator';
+import { ActiveUser } from './decorators/activeUser.decorator';
+import { Customer } from './decorators/customer.decorator';
 import { Public } from './decorators/public.decorator';
+import { TPayloadToken } from './types/TPayloadToken.type';
 
 @Controller('')
 export class HealthController {
@@ -16,11 +19,18 @@ export class HealthController {
     return new ResponseSuccess('Success', { message: 'health - ok' });
   }
 
-  @Get('protected')
+  @Get('protected-user')
   @HttpCode(200)
-  async protected(@Req() req: Request) {
-    const id = req?.user ? (req?.user as { userId: string }).userId : '';
-    const results = await this.appService.protected(id);
+  async protectedUser(@ActiveUser() { userId }: TPayloadToken) {
+    const results = await this.appService.protectedUser(userId);
+    return new ResponseSuccess('Success', results);
+  }
+
+  @Customer()
+  @Get('protected-customer')
+  @HttpCode(200)
+  async protectedCustomer(@ActiveCustomer() { customerId }: TPayloadToken) {
+    const results = await this.appService.protectedCustomer(customerId);
     return new ResponseSuccess('Success', results);
   }
 }

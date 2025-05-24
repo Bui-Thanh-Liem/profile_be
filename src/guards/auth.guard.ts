@@ -72,7 +72,7 @@ export class JwtAuthGuard extends AuthGuard('jwt-auth') {
     // const req = context.switchToHttp().getRequest<Request>();
     // const res = context.switchToHttp().getResponse<Response>();
 
-    if (err || !user) {
+    if (err) {
       console.log('Thấy dòng này là lỗi tại guard tại auth');
 
       if (info?.name === 'TokenExpiredError') {

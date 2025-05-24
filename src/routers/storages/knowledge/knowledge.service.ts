@@ -15,14 +15,13 @@ import Exception from 'src/message-validations/exception.validation';
 import { UserEntity } from 'src/routers/user/entities/user.entity';
 import { TPayloadToken } from 'src/types/TPayloadToken.type';
 import { UtilBuilder } from 'src/utils/Builder.util';
-import { createKeyUserActive } from 'src/utils/createKeyUserActive';
+import { createKeyCustomerActive, createKeyUserActive } from 'src/utils/createKeyCache';
 import { DeleteResult, In, Repository } from 'typeorm';
 import { KeywordEntity } from '../keyword/entities/keyword.entity';
 import { KeywordService } from '../keyword/keyword.service';
 import { CreateKnowledgeDto } from './dto/create-knowledge.dto';
 import { UpdateKnowledgeDto } from './dto/update-knowledge.dto';
 import { KnowledgeEntity } from './entities/knowledge.entity';
-import { UserService } from 'src/routers/user/user.service';
 
 @Injectable()
 export class KnowledgeService {
@@ -35,8 +34,6 @@ export class KnowledgeService {
 
     @InjectRepository(KnowledgeEntity)
     private knowledgeRepository: Repository<KnowledgeEntity>,
-
-    private userService: UserService,
   ) {}
 
   async create({ payload, activeUser }: ICreateService<CreateKnowledgeDto>) {
@@ -211,9 +208,9 @@ export class KnowledgeService {
 
   async toggleLike(
     knowledgeId: string,
-    userId: string,
+    customerId: string,
   ): Promise<{ action: 'liked' | 'unliked'; knowledge: KnowledgeEntity }> {
-    //
+    //""
     const knowledge = await this.knowledgeRepository.findOne({
       where: { id: knowledgeId },
       relations: ['likes'],
@@ -223,26 +220,25 @@ export class KnowledgeService {
     }
 
     //
-    const key = createKeyUserActive(userId);
-    const userActive = await this.cacheService.getCache<UserEntity>(key);
+    const key = createKeyCustomerActive(customerId);
+    const customerActive = await this.cacheService.getCache<UserEntity>(key);
+    console.log('customerActive:::', customerActive);
 
-    const hasLiked = knowledge.likes?.some((u) => u.id === userId);
+    const hasLiked = knowledge.likes?.some((u) => u.id === customerId);
     knowledge.likes = knowledge.likes || [];
 
     if (hasLiked) {
       // Unlike: Remove user from likes
-      knowledge.likes = knowledge.likes.filter((u) => u.id !== userId);
-      knowledge.numberLike = Math.max(0, knowledge.numberLike - 1);
+      knowledge.likes = knowledge.likes.filter((u) => u.id !== customerId);
+      knowledge.likeCount = Math.max(0, knowledge.likeCount - 1);
     } else {
       // Like: Add user to likes
-      knowledge.likes.push(userActive);
-      knowledge.numberLike = (knowledge.numberLike || 0) + 1;
+      knowledge.likes.push(customerActive);
+      knowledge.likeCount = (knowledge.likeCount || 0) + 1;
     }
 
     try {
       await this.knowledgeRepository.save(knowledge);
-      // Clear cache to reflect updated likes
-      // await this.cacheService.deleteCacheByPattern(`Knowledge:${userId}`);
       return {
         action: hasLiked ? 'unliked' : 'liked',
         knowledge,

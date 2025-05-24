@@ -13,7 +13,7 @@ import { ICreateService, IFindAllService, IUpdateService } from 'src/interfaces/
 import { IGetMulti } from 'src/interfaces/response.interface';
 import Exception from 'src/message-validations/exception.validation';
 import { UtilBuilder } from 'src/utils/Builder.util';
-import { createKeyUserActive } from 'src/utils/createKeyUserActive';
+import { createKeyUserActive } from 'src/utils/createKeyCache';
 import { DeleteResult, In, Repository } from 'typeorm';
 import { UserEntity } from '../user/entities/user.entity';
 import { CreateSkillDto } from './dto/create-skill.dto';

@@ -3,13 +3,13 @@ import { Constants, Enums } from 'liemdev-profile-lib';
 import AQueries from 'src/abstracts/AQuery.abstract';
 import { ResponseSuccess } from 'src/classes/response.class';
 import { ActiveUser } from 'src/decorators/activeUser.decorator';
-import { Public } from 'src/decorators/public.decorator';
+import { Customer } from 'src/decorators/customer.decorator';
+import { Roles } from 'src/decorators/role.decorator';
 import { IKeyWord } from 'src/interfaces/models.interface';
 import { TPayloadToken } from 'src/types/TPayloadToken.type';
 import { CreateKeyWordDto } from './dto/create-keyword.dto';
 import { UpdateKeyWordDto } from './dto/update-keyword.dto';
 import { KeywordService } from './keyword.service';
-import { Roles } from 'src/decorators/role.decorator';
 
 @Controller(Constants.CONSTANT_ROUTE.KEYWORD)
 export class KeyWordController {
@@ -26,7 +26,7 @@ export class KeyWordController {
     return new ResponseSuccess('Success', result);
   }
 
-  @Public()
+  @Roles({ resource: 'keyword', action: 'view' })
   @Get()
   async findAll(@Query() queries: AQueries<IKeyWord>) {
     this.logger.debug(`Queries ::: ${JSON.stringify(queries)}`);
@@ -36,7 +36,7 @@ export class KeyWordController {
     return new ResponseSuccess('Success', result);
   }
 
-  @Public()
+  @Customer()
   @Get('type/:type')
   async findAllByTypeKnowledge(@Param('type') type: Enums.ETypeKnowledge) {
     this.logger.debug(`findAllByTypeKnowledge ::: ${JSON.stringify(type)}`);
@@ -44,7 +44,7 @@ export class KeyWordController {
     return new ResponseSuccess('Success', result);
   }
 
-  @Public()
+  @Roles({ resource: 'keyword', action: 'view' })
   @Get(':id')
   async findOneById(@Param('id') id: string) {
     const result = await this.keywordService.findOneById(id);

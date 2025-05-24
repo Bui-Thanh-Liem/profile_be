@@ -18,7 +18,7 @@ import { TokenService } from 'src/libs/token/token.service';
 import Exception from 'src/message-validations/exception.validation';
 import { UtilArray } from 'src/utils/Array.util';
 import { UtilBuilder } from 'src/utils/Builder.util';
-import { createKeyUserActive } from 'src/utils/createKeyUserActive';
+import { createKeyUserActive } from 'src/utils/createKeyCache';
 import { In, Not, Repository } from 'typeorm';
 import { RoleGroupEntity } from '../role-group/entities/role-group.entity';
 import { RoleGroupService } from '../role-group/role-group.service';

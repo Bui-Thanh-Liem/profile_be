@@ -2,8 +2,9 @@ import { Body, Controller, Delete, Get, Logger, Param, Patch, Post, Query, Uploa
 import { Constants } from 'liemdev-profile-lib';
 import AQueries from 'src/abstracts/AQuery.abstract';
 import { ResponseSuccess } from 'src/classes/response.class';
+import { ActiveCustomer } from 'src/decorators/activeCustomer.decorator';
 import { ActiveUser } from 'src/decorators/activeUser.decorator';
-import { Public } from 'src/decorators/public.decorator';
+import { Customer } from 'src/decorators/customer.decorator';
 import { Roles } from 'src/decorators/role.decorator';
 import { UploadSingleFile } from 'src/decorators/upload-single-file.decorator';
 import { TPayloadToken } from 'src/types/TPayloadToken.type';
@@ -44,12 +45,11 @@ export class KnowledgeController {
     return new ResponseSuccess('Success', result);
   }
 
-  @Public()
-  @Post(':id/like')
-  async toggleLike(@Param('id') productId: string, @ActiveUser() activeUser: TPayloadToken) {
-    const { action, knowledge } = await this.knowledgeService.toggleLike(productId, activeUser.userId);
-
-    return new ResponseSuccess(`Product ${action} successfully`, {
+  @Customer()
+  @Patch('like/:id')
+  async toggleLike(@Param('id') productId: string, @ActiveCustomer() { customerId }: TPayloadToken) {
+    const { action, knowledge } = await this.knowledgeService.toggleLike(productId, customerId);
+    return new ResponseSuccess(`Knowledge ${action} successfully`, {
       productId: knowledge.id,
       likesCount: knowledge.likes?.length || 0,
     });
@@ -80,7 +80,17 @@ export class KnowledgeController {
     return new ResponseSuccess('Success', result);
   }
 
-  @Public()
+  @Customer()
+  @Get('for-customer')
+  async findAllForCustomer(@Query() queries: AQueries<KnowledgeEntity>) {
+    const results = await this.knowledgeService.findAll({
+      queries,
+    });
+
+    return new ResponseSuccess('Success', results);
+  }
+
+  @Roles({ resource: 'knowledge', action: 'view' })
   @Get()
   async findAll(@Query() queries: AQueries<KnowledgeEntity>) {
     const results = await this.knowledgeService.findAll({
@@ -90,9 +100,16 @@ export class KnowledgeController {
     return new ResponseSuccess('Success', results);
   }
 
-  @Public()
+  @Roles({ resource: 'knowledge', action: 'view' })
   @Get(':id')
   async findOne(@Param('id') id: string) {
+    const result = await this.knowledgeService.findOneById(id);
+    return new ResponseSuccess('Success', result);
+  }
+
+  @Customer()
+  @Get('/for-customer/:id')
+  async findOneForCustomer(@Param('id') id: string) {
     const result = await this.knowledgeService.findOneById(id);
     return new ResponseSuccess('Success', result);
   }

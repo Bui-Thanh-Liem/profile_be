@@ -6,7 +6,7 @@ import { IRoleGroup } from 'src/interfaces/models.interface';
 import { IGetMulti } from 'src/interfaces/response.interface';
 import Exception from 'src/message-validations/exception.validation';
 import { UtilBuilder } from 'src/utils/Builder.util';
-import { createKeyUserActive } from 'src/utils/createKeyUserActive';
+import { createKeyUserActive } from 'src/utils/createKeyCache';
 import { In, Not, Repository } from 'typeorm';
 import { RoleService } from '../role/role.service';
 import { UserEntity } from '../user/entities/user.entity';

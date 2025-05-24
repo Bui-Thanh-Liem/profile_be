@@ -4,6 +4,7 @@ import { UserEntity } from 'src/routers/user/entities/user.entity';
 import { UtilSlug } from 'src/utils/Slug.util';
 import { BeforeInsert, BeforeUpdate, Column, Entity, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
 import { KeywordEntity } from '../../keyword/entities/keyword.entity';
+import { CustomerEntity } from 'src/routers/customer/entities/customer.entity';
 
 @Entity('knowledge')
 export class KnowledgeEntity extends ABaseEntity {
@@ -25,16 +26,16 @@ export class KnowledgeEntity extends ABaseEntity {
   @Column({ type: 'int', nullable: true, default: 0 })
   rate: number;
 
-  @ManyToMany(() => UserEntity, { onDelete: 'CASCADE' })
+  @ManyToMany(() => CustomerEntity, { onDelete: 'CASCADE' })
   @JoinTable({
     name: 'knowledge_likes',
     joinColumn: { name: 'knowledge_id', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'customer_id', referencedColumnName: 'id' },
   })
   likes: UserEntity[];
 
   @Column({ type: 'int', default: 0 })
-  numberLike: number;
+  likeCount: number;
 
   @ManyToMany(() => KeywordEntity, (keyword) => keyword.knowledge)
   @JoinTable({

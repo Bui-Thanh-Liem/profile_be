@@ -15,7 +15,7 @@ export default registerAs(
     entities: [__dirname + '/../**/*.entity.{ts,js}'], // Nếu source code nằm trong `src`
     maxQueryExecutionTime: 3000, // 3s, ghi lại log khi query hơn 3s3s
     poolSize: 10, // Là số lượng kết nối tối đa mà connection pool có thể duy trì ( thay vì đóng và mở kết nối mỗi khi query)
-    logger: 'simple-console', // Ghi log đơn giản vào console
-    logging: ['query', 'error'], // Chỉ ghi log truy vấn và lỗi
+    // logger: 'simple-console', // Ghi log đơn giản vào console
+    // logging: ['query', 'error'], // Chỉ ghi log truy vấn và lỗi
   }),
 );

@@ -224,7 +224,7 @@ export class CustomerService {
 
   async logout(refreshToken: string) {
     try {
-      this.tokenService.verifyAccessToken(refreshToken);
+      await this.tokenService.verifyAccessToken(refreshToken);
 
       // 1. Thu hồi token để kiểm tra lịch sử đăng nhập
       const revoked = await this.tokenService.revokeTokenToLogout({ refreshToken: refreshToken });

@@ -188,42 +188,34 @@ export class TokenService {
   }
 
   async verifyAccessToken<T extends object>(token: string): Promise<T> {
-    try {
-      const exist = await this.tokenRepository.findOneBy({ token });
+    const exist = await this.tokenRepository.findOneBy({ token });
 
-      if (!exist) {
-        throw new UnauthorizedException('Token not found');
-      }
-
-      if (exist.isRevoked) {
-        throw new UnauthorizedException('Token revoked');
-      }
-
-      return await this.jwtService.verifyAsync(token, {
-        secret: process.env.SECRET_ACCESS_KEY,
-      });
-    } catch (error) {
-      throw new UnauthorizedException(error);
+    if (!exist) {
+      throw new UnauthorizedException('Token not found');
     }
+
+    if (exist.isRevoked) {
+      throw new UnauthorizedException('Token revoked');
+    }
+
+    return await this.jwtService.verifyAsync(token, {
+      secret: process.env.SECRET_ACCESS_KEY,
+    });
   }
 
   async verifyRefreshToken(token: string): Promise<TPayloadToken> {
-    try {
-      const exist = await this.tokenRepository.findOneBy({ refreshToken: token });
+    const exist = await this.tokenRepository.findOneBy({ refreshToken: token });
 
-      if (!exist) {
-        throw new UnauthorizedException('Token not found');
-      }
-
-      if (exist.isRevoked) {
-        throw new UnauthorizedException('Token revoked');
-      }
-      return await this.jwtService.verifyAsync(token, {
-        secret: process.env.SECRET_REFRESH_KEY,
-      });
-    } catch (error) {
-      throw new UnauthorizedException(error);
+    if (!exist) {
+      throw new UnauthorizedException('Token not found');
     }
+
+    if (exist.isRevoked) {
+      throw new UnauthorizedException('Token revoked');
+    }
+    return await this.jwtService.verifyAsync(token, {
+      secret: process.env.SECRET_REFRESH_KEY,
+    });
   }
 
   getTimeExpired(num: number) {
