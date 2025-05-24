@@ -210,16 +210,16 @@ export class KnowledgeService {
   }
 
   async toggleLike(
-    productId: string,
+    knowledgeId: string,
     userId: string,
   ): Promise<{ action: 'liked' | 'unliked'; knowledge: KnowledgeEntity }> {
     //
     const knowledge = await this.knowledgeRepository.findOne({
-      where: { id: productId },
+      where: { id: knowledgeId },
       relations: ['likes'],
     });
     if (!knowledge) {
-      throw new NotFoundException('Knowledge not found');
+      throw new NotFoundException(Exception.notfound('Knowledge'));
     }
 
     //
@@ -242,7 +242,7 @@ export class KnowledgeService {
     try {
       await this.knowledgeRepository.save(knowledge);
       // Clear cache to reflect updated likes
-      await this.cacheService.deleteCacheByPattern(`Knowledge:${userId}`);
+      // await this.cacheService.deleteCacheByPattern(`Knowledge:${userId}`);
       return {
         action: hasLiked ? 'unliked' : 'liked',
         knowledge,
