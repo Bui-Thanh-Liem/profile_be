@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IResultRefreshToken, IResultSignToken } from 'src/interfaces/result.interface';
@@ -132,7 +132,7 @@ export class TokenService {
 
       //
       if (tokens.length <= 0) {
-        throw new UnauthorizedException(Exception.notfound('Token'));
+        throw new UnauthorizedException('This user is not logged in.');
       }
 
       await Promise.all(
@@ -145,8 +145,7 @@ export class TokenService {
       return true;
     } catch (error) {
       console.log('Revoke token fail !');
-
-      throw error;
+      throw new BadRequestException('Revoke token fail !');
     }
   }
 
