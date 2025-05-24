@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import Exception from 'src/message-validations/exception.validation';
 import { CacheService } from './helpers/services/Cache.service';
 import { UserEntity } from './routers/user/entities/user.entity';
 import { UserService } from './routers/user/user.service';
+import { createKeyUserActive } from './utils/createKeyUserActive';
 
 @Injectable()
 export class AppService {
@@ -11,12 +13,11 @@ export class AppService {
   ) {}
 
   async protected(id: string) {
-    const key = `userActive:${id}`;
+    const key = createKeyUserActive(id);
 
     try {
       const userActiveCache = await this.cacheService.getCache<UserEntity>(key);
       console.log('userActiveCache:::', userActiveCache);
-
       if (userActiveCache) return userActiveCache;
 
       const userActive = await this.userService.findOneById(id);
@@ -26,7 +27,7 @@ export class AppService {
       return userActive;
     } catch (error) {
       console.error(`Error in protected method for id ${id}:`, error);
-      throw new Error('Unable to retrieve user data');
+      throw new BadRequestException(Exception.loginAgain());
     }
   }
 }

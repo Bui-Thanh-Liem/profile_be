@@ -14,6 +14,9 @@ class Exception {
   unAuthorization() {
     return `Incorrect email or password`;
   }
+  block() {
+    return `Your account has been locked, please contact administrator.`;
+  }
   invalid(object: string) {
     return `Invalid ${object}`;
   }
@@ -28,6 +31,9 @@ class Exception {
   }
   depend() {
     return 'The item you want to delete depends on another items, please check again.';
+  }
+  doNotAdmin() {
+    return `You cannot delete users who are administrators.`;
   }
 }
 

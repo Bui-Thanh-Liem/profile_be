@@ -25,7 +25,7 @@ export class QueueTestProcessor implements OnModuleInit, OnModuleDestroy {
           //
           if (job.name === CONSTANT_JOB.JOB_SEND_BULK_TEST_USER) {
             this.logger.debug(`📨 Đang xử lý test ${testUsers?.length || 0} user...`);
-            await this.userService.test(testUsers);
+            await this.userService.testCreateData(testUsers);
             this.logger.debug(`✅ Xử lý test ${testUsers?.length || 0} user thành công`);
           }
         },

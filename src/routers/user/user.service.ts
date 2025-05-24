@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Enums } from 'liemdev-profile-lib';
+import { CacheService } from 'src/helpers/services/Cache.service';
 import { ICreateService, IFindAllService, IUpdateService } from 'src/interfaces/common.interface';
 import { IUser } from 'src/interfaces/models.interface';
 import { IGetMulti } from 'src/interfaces/response.interface';
@@ -17,6 +18,7 @@ import { TokenService } from 'src/libs/token/token.service';
 import Exception from 'src/message-validations/exception.validation';
 import { UtilArray } from 'src/utils/Array.util';
 import { UtilBuilder } from 'src/utils/Builder.util';
+import { createKeyUserActive } from 'src/utils/createKeyUserActive';
 import { In, Not, Repository } from 'typeorm';
 import { RoleGroupEntity } from '../role-group/entities/role-group.entity';
 import { RoleGroupService } from '../role-group/role-group.service';
@@ -40,6 +42,7 @@ export class UserService implements OnModuleInit {
 
     private tokenService: TokenService,
     private queueMailService: QueueMailService,
+    private cacheService: CacheService,
   ) {}
 
   onModuleInit() {
@@ -50,7 +53,8 @@ export class UserService implements OnModuleInit {
     const { email: emailPayload, fullName, phone, roles, roleGroups, gender } = payload;
 
     // creator
-    const creator = await this.verifyUser(activeUser.userId);
+    const key = createKeyUserActive(activeUser?.userId);
+    const creator = await this.cacheService.getCache<UserEntity>(key);
 
     // Check exist email
     const findItemByEmail = await this.userRepository.findOneBy({
@@ -120,7 +124,8 @@ export class UserService implements OnModuleInit {
 
   async findAll({ queries, activeUser }: IFindAllService<UserEntity>): Promise<IGetMulti<UserEntity>> {
     //
-    const findUser = await this.verifyUser(activeUser.userId);
+    const key = createKeyUserActive(activeUser?.userId);
+    const userActive = await this.cacheService.getCache<UserEntity>(key);
 
     // Cách 1:
     // const exists = await this.userRepository.exists({ where: { id: userActionId } });
@@ -140,7 +145,7 @@ export class UserService implements OnModuleInit {
     });
     const { items, totalItems } = await queryBuilder.handleConditionQueries({
       queries,
-      user: findUser,
+      user: userActive,
       searchField: 'fullName',
     });
 
@@ -199,7 +204,8 @@ export class UserService implements OnModuleInit {
     const { roles, roleGroups, email: emailPayload, fullName, phone } = payload;
 
     //
-    const editor = await this.verifyUser(activeUser.userId);
+    const key = createKeyUserActive(activeUser?.userId);
+    const editor = await this.cacheService.getCache<UserEntity>(key);
 
     // check exist
     const findItem = await this.userRepository.findOneBy({ id });
@@ -264,7 +270,16 @@ export class UserService implements OnModuleInit {
     return itemUpdated;
   }
 
-  async block(id: string): Promise<UserEntity> {
+  async toggleBlock(id: string, activeUserId: string): Promise<UserEntity> {
+    //
+    const key = createKeyUserActive(activeUserId);
+    const userActive = await this.cacheService.getCache<UserEntity>(key);
+
+    //
+    if (!userActive.isAdmin && !userActive.isSubAdmin) {
+      throw new BadRequestException(Exception.doNotAdmin());
+    }
+
     // check exist
     const findItem = await this.userRepository.findOneBy({ id });
     if (!findItem) {
@@ -274,32 +289,52 @@ export class UserService implements OnModuleInit {
     //
     const itemUpdated = await this.userRepository.save({
       ...findItem,
-      block: true,
+      block: !findItem.block,
     });
 
     return itemUpdated;
   }
 
-  async revoke(ids: string[]): Promise<boolean> {
+  async revoke(userIds: string[], activeUserId: string): Promise<boolean> {
+    //
+    const key = createKeyUserActive(activeUserId);
+    const userActive = await this.cacheService.getCache<UserEntity>(key);
+
+    //
+    if (!userActive.isAdmin && !userActive.isSubAdmin) {
+      throw new BadRequestException(Exception.doNotAdmin());
+    }
+
     // check exist
-    const findItems = await this.userRepository.find({ where: { id: In(ids) } });
+    const findItems = await this.userRepository.find({ where: { id: In(userIds) } });
+    console.log('findItems:::', findItems);
+
     if (findItems.length <= 0) {
-      throw new NotFoundException(Exception.notfound('User'));
+      throw new NotFoundException(Exception.notfound('User revoke'));
     }
 
     //
-    await this.tokenService.revokeToken({ userIds: ids });
+    await this.tokenService.revokeToken({ userIds });
 
     return true;
   }
 
-  async remove(ids: string[]): Promise<true> {
+  async remove(ids: string[], activeUserId: string): Promise<true> {
+    //
+    const key = createKeyUserActive(activeUserId);
+    const userActive = await this.cacheService.getCache<UserEntity>(key);
+
     //
     const findItems = await this.userRepository.findBy({ id: In(ids) });
+    const isSubAdmin = findItems.some((item) => item.isSubAdmin);
 
     //
     if (findItems.length !== ids.length) {
       throw new NotFoundException(Exception.notfound('User'));
+    }
+
+    if (isSubAdmin && (!userActive.isAdmin || !userActive.isSubAdmin)) {
+      throw new BadRequestException(Exception.doNotAdmin());
     }
 
     //
@@ -334,20 +369,7 @@ export class UserService implements OnModuleInit {
     await this.userRepository.save(createData);
   }
 
-  async verifyUser(id: string): Promise<UserEntity> {
-    const user = await this.userRepository.findOneBy({
-      id,
-      block: false,
-    });
-
-    if (!user) {
-      throw new BadRequestException(Exception.bad());
-    }
-
-    return user;
-  }
-
-  async test(data: Partial<IUser>[]): Promise<boolean> {
+  async testCreateData(data: Partial<IUser>[]): Promise<boolean> {
     try {
       const batchSize = 5;
       const recipientChunks = UtilArray.chunkArray(data, batchSize); // [ 5items, 5items]

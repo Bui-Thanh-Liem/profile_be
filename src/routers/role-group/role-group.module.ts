@@ -1,13 +1,13 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { HelperModule } from 'src/helpers/helper.module';
+import { RoleModule } from '../role/role.module';
+import { RoleGroupEntity } from './entities/role-group.entity';
 import { RoleGroupController } from './role-group.controller';
 import { RoleGroupService } from './role-group.service';
-import { UserModule } from '../user/user.module';
-import { RoleModule } from '../role/role.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { RoleGroupEntity } from './entities/role-group.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([RoleGroupEntity]), forwardRef(() => UserModule), forwardRef(() => RoleModule)],
+  imports: [TypeOrmModule.forFeature([RoleGroupEntity]), RoleModule, HelperModule],
   controllers: [RoleGroupController],
   providers: [RoleGroupService],
   exports: [RoleGroupService],

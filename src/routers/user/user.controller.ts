@@ -60,6 +60,15 @@ export class UserController {
   }
 
   @Roles({ resource: 'user', action: 'update' })
+  @Patch('revoke')
+  async revoke(@Body() payload: RevokeUserDto, @ActiveUser() activeUser: TPayloadToken) {
+    console.log('user revoke lala');
+
+    const result = await this.userService.revoke(payload.userIds, activeUser.userId);
+    return new ResponseSuccess('Success', result);
+  }
+
+  @Roles({ resource: 'user', action: 'update' })
   @Patch(':id')
   async update(@Param('id') id: string, @Body() payload: UpdateUserDto, @ActiveUser() activeUser: TPayloadToken) {
     const result = await this.userService.update({ id, payload, activeUser });
@@ -68,22 +77,15 @@ export class UserController {
 
   @Roles({ resource: 'user', action: 'update' })
   @Patch('block/:id')
-  async block(@Param('id') payload: BlockUserDto) {
-    const result = await this.userService.block(payload.id);
-    return new ResponseSuccess('Success', result);
-  }
-
-  @Roles({ resource: 'user', action: 'update' })
-  @Patch('revoke')
-  async revoke(@Body() payload: RevokeUserDto) {
-    const result = await this.userService.revoke(payload.userIds);
+  async block(@Param('id') payload: BlockUserDto, @ActiveUser() activeUser: TPayloadToken) {
+    const result = await this.userService.toggleBlock(payload.id, activeUser.userId);
     return new ResponseSuccess('Success', result);
   }
 
   @Roles({ resource: 'user', action: 'delete' })
   @Delete()
-  async remove(@Body() ids: string[]) {
-    const result = await this.userService.remove(ids);
+  async remove(@Body() ids: string[], @ActiveUser() activeUser: TPayloadToken) {
+    const result = await this.userService.remove(ids, activeUser.userId);
     return new ResponseSuccess('Success', result);
   }
 }

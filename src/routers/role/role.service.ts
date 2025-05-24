@@ -1,12 +1,14 @@
-import { ConflictException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CacheService } from 'src/helpers/services/Cache.service';
 import { ICreateService, IFindAllService, IUpdateService } from 'src/interfaces/common.interface';
 import { IRole } from 'src/interfaces/models.interface';
 import { IGetMulti } from 'src/interfaces/response.interface';
 import Exception from 'src/message-validations/exception.validation';
 import { UtilBuilder } from 'src/utils/Builder.util';
+import { createKeyUserActive } from 'src/utils/createKeyUserActive';
 import { DeleteResult, In, Not, Repository } from 'typeorm';
-import { UserService } from '../user/user.service';
+import { UserEntity } from '../user/entities/user.entity';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { RoleEntity } from './entities/role.entity';
@@ -16,14 +18,13 @@ export class RoleService {
   constructor(
     @InjectRepository(RoleEntity)
     private roleRepository: Repository<RoleEntity>,
-
-    @Inject(forwardRef(() => UserService))
-    private userService: UserService,
+    private cacheService: CacheService,
   ) {}
 
   async create({ payload, activeUser }: ICreateService<CreateRoleDto>): Promise<RoleEntity> {
     //
-    const creator = await this.userService.verifyUser(activeUser.userId);
+    const key = createKeyUserActive(activeUser.userId);
+    const creator = await this.cacheService.getCache<UserEntity>(key);
 
     // Check exist name
     const findItemByName = await this.roleRepository.findOneBy({
@@ -45,13 +46,14 @@ export class RoleService {
 
   async findAll({ queries, activeUser }: IFindAllService<IRole>): Promise<IGetMulti<RoleEntity>> {
     //
-    const findUser = await this.userService.verifyUser(activeUser.userId);
+    const key = createKeyUserActive(activeUser.userId);
+    const userActive = await this.cacheService.getCache<UserEntity>(key);
 
     //
     const queryBuilder = new UtilBuilder<RoleEntity>(this.roleRepository);
     const { items, totalItems } = await queryBuilder.handleConditionQueries({
       queries,
-      user: findUser,
+      user: userActive,
       searchField: 'name',
     });
 
@@ -86,7 +88,8 @@ export class RoleService {
 
   async update({ id, payload, activeUser }: IUpdateService<UpdateRoleDto>): Promise<RoleEntity> {
     //
-    const editor = await this.userService.verifyUser(activeUser.userId);
+    const key = createKeyUserActive(activeUser.userId);
+    const editor = await this.cacheService.getCache<UserEntity>(key);
 
     // check exist
     const findItem = await this.roleRepository.findOneBy({ id });

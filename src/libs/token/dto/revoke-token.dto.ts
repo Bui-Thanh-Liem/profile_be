@@ -4,7 +4,7 @@ import { IToken } from 'src/interfaces/models.interface';
 
 export class RevokeTokenDto {
   @IsOptional()
-  @ApiProperty({ type: Array, default: ['token'] })
+  @ApiProperty({ type: Array, default: ['userIds'] })
   userIds: string[];
 }
 

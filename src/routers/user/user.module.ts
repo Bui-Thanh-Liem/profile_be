@@ -7,6 +7,7 @@ import { UserEntity } from './entities/user.entity';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { TokenModule } from 'src/libs/token/token.module';
+import { HelperModule } from 'src/helpers/helper.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { TokenModule } from 'src/libs/token/token.module';
     forwardRef(() => RoleGroupModule),
     QueueMailModule,
     TokenModule,
+    HelperModule,
   ],
   controllers: [UserController],
   providers: [UserService],

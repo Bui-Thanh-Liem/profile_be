@@ -1,20 +1,15 @@
-import {
-  BadRequestException,
-  ConflictException,
-  forwardRef,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CacheService } from 'src/helpers/services/Cache.service';
 import { ICreateService, IFindAllService, IUpdateService } from 'src/interfaces/common.interface';
 import { IRoleGroup } from 'src/interfaces/models.interface';
 import { IGetMulti } from 'src/interfaces/response.interface';
 import Exception from 'src/message-validations/exception.validation';
 import { UtilBuilder } from 'src/utils/Builder.util';
+import { createKeyUserActive } from 'src/utils/createKeyUserActive';
 import { In, Not, Repository } from 'typeorm';
 import { RoleService } from '../role/role.service';
-import { UserService } from '../user/user.service';
+import { UserEntity } from '../user/entities/user.entity';
 import { CreateRoleGroupDto } from './dto/create-role-group.dto';
 import { UpdateRoleGroupDto } from './dto/update-role-group.dto';
 import { RoleGroupEntity } from './entities/role-group.entity';
@@ -25,17 +20,16 @@ export class RoleGroupService {
     @InjectRepository(RoleGroupEntity)
     private roleGroupRepository: Repository<RoleGroupEntity>,
 
-    @Inject(forwardRef(() => UserService))
-    private userService: UserService,
-
-    @Inject(forwardRef(() => RoleService))
     private roleService: RoleService,
+
+    private cacheService: CacheService,
   ) {}
 
   async create({ payload, activeUser }: ICreateService<CreateRoleGroupDto>): Promise<RoleGroupEntity> {
     const { name, roles } = payload;
     //
-    const creator = await this.userService.verifyUser(activeUser.userId);
+    const key = createKeyUserActive(activeUser.userId);
+    const creator = await this.cacheService.getCache<UserEntity>(key);
 
     // Check exist name
     const findItemByName = await this.roleGroupRepository.findOneBy({
@@ -61,13 +55,14 @@ export class RoleGroupService {
 
   async findAll({ queries, activeUser }: IFindAllService<IRoleGroup>): Promise<IGetMulti<RoleGroupEntity>> {
     //
-    const findUser = await this.userService.verifyUser(activeUser.userId);
+    const key = createKeyUserActive(activeUser.userId);
+    const userActive = await this.cacheService.getCache<UserEntity>(key);
 
     //
     const queryBuilder = new UtilBuilder<RoleGroupEntity>(this.roleGroupRepository);
     const { items, totalItems } = await queryBuilder.handleConditionQueries({
       queries,
-      user: findUser,
+      user: userActive,
       searchField: 'name',
     });
 
@@ -104,7 +99,8 @@ export class RoleGroupService {
     const { roles } = payload;
 
     //
-    const editor = await this.userService.verifyUser(activeUser.userId);
+    const key = createKeyUserActive(activeUser.userId);
+    const editor = await this.cacheService.getCache<UserEntity>(key);
 
     // check exist
     const findItem = await this.roleGroupRepository.findOneBy({ id });

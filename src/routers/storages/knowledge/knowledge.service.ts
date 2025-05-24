@@ -1,12 +1,14 @@
 import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CacheService } from 'src/helpers/services/Cache.service';
 import { FileLocalService } from 'src/helpers/services/FileLocal.service';
 import { ICreateService, IFindAllService, IUpdateService } from 'src/interfaces/common.interface';
 import { IGetMulti } from 'src/interfaces/response.interface';
 import Exception from 'src/message-validations/exception.validation';
-import { UserService } from 'src/routers/user/user.service';
+import { UserEntity } from 'src/routers/user/entities/user.entity';
 import { TPayloadToken } from 'src/types/TPayloadToken.type';
 import { UtilBuilder } from 'src/utils/Builder.util';
+import { createKeyUserActive } from 'src/utils/createKeyUserActive';
 import { DeleteResult, In, Repository } from 'typeorm';
 import { KeywordEntity } from '../keyword/entities/keyword.entity';
 import { KeywordService } from '../keyword/keyword.service';
@@ -19,10 +21,9 @@ export class KnowledgeService {
   private readonly logger = new Logger(KnowledgeService.name);
 
   constructor(
-    private userService: UserService,
     private keywordService: KeywordService,
     private fileLocalService: FileLocalService,
-    // private cacheService: CacheService,
+    private cacheService: CacheService,
 
     @InjectRepository(KnowledgeEntity)
     private knowledgeRepository: Repository<KnowledgeEntity>,
@@ -34,7 +35,8 @@ export class KnowledgeService {
 
     try {
       //
-      const creator = await this.userService.verifyUser(activeUser.userId);
+      const key = createKeyUserActive(activeUser.userId);
+      const creator = await this.cacheService.getCache<UserEntity>(key);
 
       //
       const findItem = await this.knowledgeRepository.findOneBy({ name });
@@ -75,7 +77,9 @@ export class KnowledgeService {
     const newFilename = newImage?.filename;
 
     try {
-      const editor = await this.userService.verifyUser(activeUser.userId);
+      //
+      const key = createKeyUserActive(activeUser.userId);
+      const editor = await this.cacheService.getCache<UserEntity>(key);
 
       // check exist
       const findItem = await this.knowledgeRepository.findOneBy({ id });

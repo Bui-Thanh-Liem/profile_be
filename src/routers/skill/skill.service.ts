@@ -7,13 +7,15 @@ import {
   OnApplicationBootstrap,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CacheService } from 'src/helpers/services/Cache.service';
 import { FileLocalService } from 'src/helpers/services/FileLocal.service';
 import { ICreateService, IFindAllService, IUpdateService } from 'src/interfaces/common.interface';
 import { IGetMulti } from 'src/interfaces/response.interface';
 import Exception from 'src/message-validations/exception.validation';
 import { UtilBuilder } from 'src/utils/Builder.util';
+import { createKeyUserActive } from 'src/utils/createKeyUserActive';
 import { DeleteResult, In, Repository } from 'typeorm';
-import { UserService } from '../user/user.service';
+import { UserEntity } from '../user/entities/user.entity';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { SkillEntity } from './entities/skill.entity';
@@ -22,12 +24,14 @@ import { skillData } from './initial-data';
 @Injectable()
 export class SkillService implements OnApplicationBootstrap {
   private readonly logger = new Logger(SkillService.name);
+
   constructor(
     @InjectRepository(SkillEntity)
     private skillRepository: Repository<SkillEntity>,
-    private userService: UserService,
     private fileLocalService: FileLocalService,
+    private cacheService: CacheService,
   ) {}
+
   onApplicationBootstrap() {
     setTimeout(() => {
       this.initialData();
@@ -38,7 +42,9 @@ export class SkillService implements OnApplicationBootstrap {
     const filename = (payload.image as Express.Multer.File).filename;
 
     try {
-      const creator = await this.userService.verifyUser(activeUser.userId);
+      //
+      const key = createKeyUserActive(activeUser.userId);
+      const creator = await this.cacheService.getCache<UserEntity>(key);
 
       //
       const findItem = await this.skillRepository.findOneBy({
@@ -88,7 +94,8 @@ export class SkillService implements OnApplicationBootstrap {
 
     try {
       //
-      const editor = await this.userService.verifyUser(activeUser.userId);
+      const key = createKeyUserActive(activeUser.userId);
+      const editor = await this.cacheService.getCache<UserEntity>(key);
 
       // check exist
       const findItem = await this.skillRepository.findOneBy({ id });
@@ -148,13 +155,9 @@ export class SkillService implements OnApplicationBootstrap {
     if (findItems.length > 0) return;
 
     //
-    const creator = await this.userService.findOneByEmail(process.env.ROOT_EMAIL);
-    if (!creator) return;
-
-    //
     await Promise.all(
       skillData.map((skill) => {
-        return this.skillRepository.save(this.skillRepository.create({ ...skill, createdBy: creator }));
+        return this.skillRepository.save(this.skillRepository.create({ ...skill }));
       }),
     );
   }
