@@ -34,7 +34,7 @@ export class SendBulkMailDto implements Partial<ISendMail> {
 
   @ApiProperty({
     default: {
-      name: Enums.ETypeMail.FORM_INTRO_STORAGE,
+      name: Enums.ETypeMail.FORM_WISH_REGISTER_USER,
     },
   })
   @IsNotEmpty({ message: Validation.empty('type') })
