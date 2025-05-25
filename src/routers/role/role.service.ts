@@ -6,7 +6,7 @@ import { IRole } from 'src/interfaces/models.interface';
 import { IGetMulti } from 'src/interfaces/response.interface';
 import Exception from 'src/message-validations/exception.validation';
 import { UtilBuilder } from 'src/utils/Builder.util';
-import { createKeyUserActive } from 'src/utils/createKeyCache';
+import { createKeyUserActive, createKeyUserRole } from 'src/utils/createKeyCache';
 import { DeleteResult, In, Not, Repository } from 'typeorm';
 import { UserEntity } from '../user/entities/user.entity';
 import { CreateRoleDto } from './dto/create-role.dto';

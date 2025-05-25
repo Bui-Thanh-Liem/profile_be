@@ -6,6 +6,7 @@ import { CacheService } from 'src/helpers/services/Cache.service';
 import { IRole } from 'src/interfaces/models.interface';
 import { IRoleCheck, IRoleDataResource, IRoleOnRoute } from 'src/interfaces/role.interface';
 import { UserService } from 'src/routers/user/user.service';
+import { createKeyUserRole } from 'src/utils/createKeyCache';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -33,7 +34,8 @@ export class RolesGuard implements CanActivate {
     // Lấy role từ request.user do đã qua guardAuth
     const request = context.switchToHttp().getRequest();
     const { userId } = request[`user`];
-    const redisKey = `user_roles:${userId}`;
+
+    const redisKey = createKeyUserRole(userId);
     let roleUser: IRoleCheck = await this.cacheService.getCache(redisKey);
 
     if (!roleUser) {
