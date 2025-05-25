@@ -109,7 +109,7 @@ export class UserService implements OnModuleInit {
         password: payload.password,
         linkLogin: `${process.env.CLIENT_HOST}/login`,
       },
-      type: Enums.ETypeMail.FORM_REGISTER,
+      type: Enums.ETypeMail.INFO_USER_REGISTER,
     });
 
     delete payload.passwordConfirm;
