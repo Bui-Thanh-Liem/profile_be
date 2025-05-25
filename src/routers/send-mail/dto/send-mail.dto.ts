@@ -17,7 +17,7 @@ export class SendMailAdminDto implements ISendMail {
 
   @ApiProperty({
     default: {
-      name: Enums.ETypeMail.FORM_LOGOUT,
+      name: Enums.ETypeMail.FORM_LOGOUT_USER,
     },
   })
   @IsNotEmpty({ message: Validation.empty('type') })
