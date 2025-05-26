@@ -2,7 +2,7 @@ import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/commo
 import { Job, QueueEvents, Worker } from 'bullmq';
 import { CONSTANT_JOB, CONSTANT_QUEUE } from 'src/constants';
 import { IUser } from 'src/interfaces/models.interface';
-import { UserService } from 'src/routers/user/user.service';
+import { UserService } from 'src/routes/user/user.service';
 
 // Tạo worker xử lý job
 @Injectable()

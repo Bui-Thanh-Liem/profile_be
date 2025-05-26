@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { InterfaceCommon } from 'liemdev-profile-lib';
 import { ABaseEntity } from 'src/abstracts/ABaseEntity.abstract';
-import { UserEntity } from 'src/routers/user/entities/user.entity';
+import { UserEntity } from 'src/routes/user/entities/user.entity';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 
 export class UtilBuilder<T extends ABaseEntity> {

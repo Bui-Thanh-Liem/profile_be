@@ -24,18 +24,19 @@ import { QueueTestModule } from './libs/bull/queue-test/queue-test.module';
 import { TaskModule } from './libs/tasks/task.module';
 import { TokenModule } from './libs/token/token.module';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
-import { AboutModule } from './routers/about/about.module';
-import { AuthModule } from './routers/auth/auth.module';
-import { CustomerModule } from './routers/customer/customer.module';
-import { RoleGroupModule } from './routers/role-group/role-group.module';
-import { RoleModule } from './routers/role/role.module';
-import { SendMailModule } from './routers/send-mail/send-mail.module';
-import { SkillModule } from './routers/skill/skill.module';
-import { KeyWordModule } from './routers/storages/keyword/keyword.module';
-import { KnowledgeModule } from './routers/storages/knowledge/knowledge.module';
-import { TestModule } from './routers/test/test.module';
-import { UserModule } from './routers/user/user.module';
+import { AboutModule } from './routes/about/about.module';
+import { AuthModule } from './routes/auth/auth.module';
+import { CustomerModule } from './routes/customer/customer.module';
+import { RoleGroupModule } from './routes/role-group/role-group.module';
+import { RoleModule } from './routes/role/role.module';
+import { SendMailModule } from './routes/send-mail/send-mail.module';
+import { SkillModule } from './routes/skill/skill.module';
+import { KeyWordModule } from './routes/storages/keyword/keyword.module';
+import { KnowledgeModule } from './routes/storages/knowledge/knowledge.module';
+import { TestModule } from './routes/test/test.module';
+import { UserModule } from './routes/user/user.module';
 import { JwtAuthStrategy } from './strategies/auth.strategy';
+import { NoteModule } from './routes/storages/note/note.module';
 
 @Module({
   imports: [
@@ -107,6 +108,7 @@ import { JwtAuthStrategy } from './strategies/auth.strategy';
     AboutModule,
     SkillModule,
     TestModule,
+    NoteModule,
   ],
   controllers: [HealthController],
   providers: [

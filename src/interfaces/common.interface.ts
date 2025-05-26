@@ -1,4 +1,4 @@
-import { InterfaceCommon, InterfaceModel } from 'liemdev-profile-lib';
+import { InterfaceCommon } from 'liemdev-profile-lib';
 import AQueries from 'src/abstracts/AQuery.abstract';
 import { TPayloadToken } from 'src/types/TPayloadToken.type';
 
@@ -12,7 +12,7 @@ export interface IResultUploadGGDrive {
 
 export interface ICreateService<Dto> {
   payload: Dto;
-  activeUser: TPayloadToken;
+  active: TPayloadToken;
 }
 
 export interface IUpdateService<Dto> {
@@ -20,12 +20,12 @@ export interface IUpdateService<Dto> {
   payload: Dto;
   newImage?: Express.Multer.File;
   newImages?: Express.Multer.File[];
-  activeUser: TPayloadToken;
+  active: TPayloadToken;
 }
 
 export interface IFindAllService<Entity> {
   queries: AQueries<Entity>;
-  activeUser?: TPayloadToken;
+  active?: TPayloadToken;
 }
 
 export type ISendMail = InterfaceCommon.ISendMail;

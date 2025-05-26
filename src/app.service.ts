@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import Exception from 'src/message-validations/exception.validation';
 import { CacheService } from './helpers/services/Cache.service';
-import { CustomerService } from './routers/customer/customer.service';
-import { UserEntity } from './routers/user/entities/user.entity';
-import { UserService } from './routers/user/user.service';
+import { CustomerService } from './routes/customer/customer.service';
+import { UserEntity } from './routes/user/entities/user.entity';
+import { UserService } from './routes/user/user.service';
 import { createKeyCustomerActive, createKeyUserActive } from './utils/createKeyCache';
 
 @Injectable()

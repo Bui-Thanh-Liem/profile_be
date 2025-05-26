@@ -5,7 +5,7 @@ import { CONSTANT_DECORATOR } from 'src/constants';
 import { CacheService } from 'src/helpers/services/Cache.service';
 import { IRole } from 'src/interfaces/models.interface';
 import { IRoleCheck, IRoleDataResource, IRoleOnRoute } from 'src/interfaces/role.interface';
-import { UserService } from 'src/routers/user/user.service';
+import { UserService } from 'src/routes/user/user.service';
 import { createKeyUserRole } from 'src/utils/createKeyCache';
 
 @Injectable()
