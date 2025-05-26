@@ -6,6 +6,7 @@ import {
   HttpStatus,
   NotFoundException,
   Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -19,6 +20,7 @@ import AQueries from 'src/abstracts/AQuery.abstract';
 import { ResponseSuccess } from 'src/classes/response.class';
 import { CONSTANT_TOKEN } from 'src/constants';
 import { ActiveUser } from 'src/decorators/activeUser.decorator';
+import { Customer } from 'src/decorators/customer.decorator';
 import { Public } from 'src/decorators/public.decorator';
 import { Roles } from 'src/decorators/role.decorator';
 import { CookieService } from 'src/helpers/services/Cookie.service';
@@ -26,6 +28,7 @@ import { ICustomer } from 'src/interfaces/models.interface';
 import Exception from 'src/message-validations/exception.validation';
 import { TPayloadToken } from 'src/types/TPayloadToken.type';
 import { CustomerService } from './customer.service';
+import { UpdateMeOtpDto } from './dto/updateMe.dto';
 import { VerifyOtpDto } from './dto/verifyOtp-customer.dto';
 import { VerifyRegisterDto } from './dto/verifyRegister-customer.dto';
 import { CustomerEntity } from './entities/customer.entity';
@@ -172,6 +175,13 @@ export class CustomerController {
   @Get(':id')
   async findOneById(@Param('id') id: string) {
     const result = await this.customerService.findOneById(id);
+    return new ResponseSuccess('Success', result);
+  }
+
+  @Customer()
+  @Patch(':id')
+  async updateMe(@Param('id') id: string, @Body() payload: UpdateMeOtpDto) {
+    const result = await this.customerService.updateMe(id, payload);
     return new ResponseSuccess('Success', result);
   }
 }

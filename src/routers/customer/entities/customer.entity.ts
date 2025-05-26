@@ -1,4 +1,3 @@
-import { BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Exclude } from 'class-transformer';
 import { ABaseEntity } from 'src/abstracts/ABaseEntity.abstract';
@@ -9,21 +8,24 @@ import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, OneToMany } from
 
 @Entity('customer')
 export class CustomerEntity extends ABaseEntity implements ICustomer {
-  @Column({ type: 'varchar', unique: true, nullable: true })
+  @Column({ type: 'varchar', length: 50, unique: true, nullable: true })
   fullName: string;
 
   @Column({ type: 'varchar', nullable: true })
   avatar: string;
 
-  @Column({ type: 'varchar', unique: true })
+  @Column({ type: 'varchar', length: 50, unique: true })
   email: string;
 
   @Exclude()
   @Column({ type: 'varchar', nullable: true, default: '' })
   password?: string;
 
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ type: 'varchar', length: 11, nullable: true })
   phone?: string;
+
+  @Column({ type: 'varchar', length: 10, nullable: true })
+  birthday?: string;
 
   @Column({ type: 'varchar', nullable: true })
   accessToken: string;
@@ -38,7 +40,7 @@ export class CustomerEntity extends ABaseEntity implements ICustomer {
   block: boolean;
 
   @Column({ type: 'boolean', default: false })
-  status: boolean;
+  active: boolean;
 
   @ManyToOne(() => UserEntity, { onDelete: 'SET NULL' })
   createdBy: UserEntity;
@@ -48,11 +50,11 @@ export class CustomerEntity extends ABaseEntity implements ICustomer {
 
   @BeforeInsert()
   @BeforeUpdate()
-  async hashPassword() {
-    // kiểm tra rỗng password tại dto của form đăng nhập không phải Google (có pass là từ form)
+  async beforeSave() {
     if (this.password) {
       this.password = await bcrypt.hash(this.password, 10);
     }
+    this.active = Boolean(this.fullName && this.email && this.phone && this.birthday);
   }
 
   validatePassword(password: string) {

@@ -16,6 +16,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   }
 
   validate(accessToken: string, refreshToken: string, profile: any, done: VerifyCallback) {
+    console.log('profile customer:::', profile);
+
     const { name, emails, photos } = profile;
     const customer: Partial<ICustomer> = {
       email: emails[0].value,
