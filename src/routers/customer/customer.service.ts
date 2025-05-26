@@ -274,10 +274,8 @@ export class CustomerService {
       throw new NotFoundException(Exception.notfound('Customer'));
     }
 
-    const updated = await this.customerRepository.save({
-      ...findItem,
-      ...payload,
-    });
+    this.customerRepository.merge(findItem, payload);
+    const updated = await this.customerRepository.save(findItem);
 
     return updated;
   }

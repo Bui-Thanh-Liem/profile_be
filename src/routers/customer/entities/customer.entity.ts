@@ -40,7 +40,7 @@ export class CustomerEntity extends ABaseEntity implements ICustomer {
   block: boolean;
 
   @Column({ type: 'boolean', default: false })
-  status: boolean;
+  active: boolean;
 
   @ManyToOne(() => UserEntity, { onDelete: 'SET NULL' })
   createdBy: UserEntity;
@@ -50,16 +50,11 @@ export class CustomerEntity extends ABaseEntity implements ICustomer {
 
   @BeforeInsert()
   @BeforeUpdate()
-  async hashPassword() {
-    this.status = Boolean(this.fullName && this.email && this.phone && this.birthday);
-  }
-
-  @BeforeInsert()
-  @BeforeUpdate()
-  async active() {
+  async beforeSave() {
     if (this.password) {
       this.password = await bcrypt.hash(this.password, 10);
     }
+    this.active = Boolean(this.fullName && this.email && this.phone && this.birthday);
   }
 
   validatePassword(password: string) {
