@@ -22,6 +22,7 @@ import { TokenService } from 'src/libs/token/token.service';
 import Exception from 'src/message-validations/exception.validation';
 import { UtilBuilder } from 'src/utils/Builder.util';
 import { Repository } from 'typeorm';
+import { UpdateMeOtpDto } from './dto/updateMe.dto';
 import { VerifyOtpDto } from './dto/verifyOtp-customer.dto';
 import { VerifyRegisterDto } from './dto/verifyRegister-customer.dto';
 import { CustomerEntity } from './entities/customer.entity';
@@ -265,5 +266,19 @@ export class CustomerService {
       throw new NotFoundException(Exception.notfound('Customer'));
     }
     return findItem;
+  }
+
+  async updateMe(id: string, payload: UpdateMeOtpDto): Promise<CustomerEntity> {
+    const findItem = await this.customerRepository.findOneBy({ id });
+    if (!findItem) {
+      throw new NotFoundException(Exception.notfound('Customer'));
+    }
+
+    const updated = await this.customerRepository.save({
+      ...findItem,
+      ...payload,
+    });
+
+    return updated;
   }
 }
