@@ -9,19 +9,19 @@ import { KeywordEntity } from '../../keyword/entities/keyword.entity';
 
 @Entity('knowledge')
 export class KnowledgeEntity extends ABaseEntity implements IKnowledge {
-  @Column({ type: 'varchar', length: 40 })
+  @Column({ type: 'varchar', length: 50 })
   name: string;
 
-  @Column({ unique: true })
+  @Column({ type: 'varchar', length: 100, unique: true })
   slug: string;
 
-  @Column('text')
+  @Column({ type: 'text' })
   desc: string;
 
-  @Column('longtext')
+  @Column({ type: 'longtext' })
   code: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   image: string;
 
   @Column({ type: 'int', nullable: true, default: 0 })

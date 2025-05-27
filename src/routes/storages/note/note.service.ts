@@ -25,7 +25,7 @@ export class NoteService {
     const key = createKeyCustomerActive(active.customerId);
     const customerActive = await this.cacheService.getCache<CustomerEntity>(key);
 
-    const dataCreate = this.noteRepository.create({ ...payload, customerId: customerActive });
+    const dataCreate = this.noteRepository.create({ ...payload, customer: customerActive });
     return await this.noteRepository.save(dataCreate);
   }
 

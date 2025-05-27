@@ -8,13 +8,13 @@ import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, OneToMany } from
 
 @Entity('customer')
 export class CustomerEntity extends ABaseEntity implements ICustomer {
-  @Column({ type: 'varchar', length: 50, unique: true, nullable: true })
+  @Column({ type: 'varchar', length: 50, unique: true })
   fullName: string;
 
   @Column({ type: 'varchar', nullable: true })
   avatar: string;
 
-  @Column({ type: 'varchar', length: 50, unique: true })
+  @Column({ type: 'varchar', length: 128, unique: true })
   email: string;
 
   @Exclude()

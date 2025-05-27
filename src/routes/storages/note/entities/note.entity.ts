@@ -22,8 +22,14 @@ export class NoteEntity extends ABaseEntity implements INote {
   @Column({ type: 'varchar', length: 20, nullable: true })
   status: Enums.EStatus;
 
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  shape: Enums.EShapeNote;
+
+  @Column({ type: 'bool', nullable: true, default: false })
+  pin: boolean;
+
   @ManyToOne(() => CustomerEntity, { onDelete: 'SET NULL' })
-  customerId: ICustomer;
+  customer: ICustomer;
 
   @ManyToOne(() => UserEntity, { onDelete: 'SET NULL' })
   createdBy: UserEntity;

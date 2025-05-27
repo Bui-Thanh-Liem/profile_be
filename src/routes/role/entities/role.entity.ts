@@ -7,7 +7,7 @@ import { Column, Entity, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
 
 @Entity('role')
 export class RoleEntity extends ABaseEntity implements IRole {
-  @Column({ type: 'varchar', unique: true })
+  @Column({ type: 'varchar', unique: true, length: 50 })
   name: string;
 
   @Column({ type: 'text', nullable: true })

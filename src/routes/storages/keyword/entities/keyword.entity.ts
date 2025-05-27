@@ -5,7 +5,7 @@ import { KnowledgeEntity } from '../../knowledge/entities/knowledge.entity';
 
 @Entity('keyword')
 export class KeywordEntity extends ABaseEntity {
-  @Column({ type: 'varchar', unique: true })
+  @Column({ type: 'varchar', unique: true, length: 50 })
   name: string;
 
   @Column({ type: 'varchar', default: '#04befe', length: 10 })

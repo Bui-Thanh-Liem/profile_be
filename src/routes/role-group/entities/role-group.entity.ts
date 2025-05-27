@@ -6,7 +6,7 @@ import { Column, Entity, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
 
 @Entity('role_group')
 export class RoleGroupEntity extends ABaseEntity implements IRoleGroup {
-  @Column({ type: 'varchar', unique: true })
+  @Column({ type: 'varchar', unique: true, length: 50 })
   name: string;
 
   @Column({ type: 'text', nullable: true })

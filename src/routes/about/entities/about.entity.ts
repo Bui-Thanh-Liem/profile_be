@@ -8,10 +8,10 @@ export class AboutEntity extends ABaseEntity implements IAbout {
   @Column({ type: 'json' })
   text: string[];
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', length: 128 })
   email: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', length: 11 })
   phone: string;
 
   @Column({ type: 'varchar' })

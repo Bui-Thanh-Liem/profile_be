@@ -5,7 +5,7 @@ import { Column, Entity, ManyToOne } from 'typeorm';
 
 @Entity('skill')
 export class SkillEntity extends ABaseEntity implements ISkill {
-  @Column({ type: 'varchar', unique: true })
+  @Column({ type: 'varchar', unique: true, length: 50 })
   name: string;
 
   @Column({ type: 'varchar' })
