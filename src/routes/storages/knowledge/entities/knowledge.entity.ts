@@ -11,9 +11,6 @@ export class KnowledgeEntity extends ABaseEntity implements IKnowledge {
   @Column({ type: 'varchar', length: 50 })
   name: string;
 
-  // @Column({ type: 'varchar', length: 100, unique: true })
-  // slug: string;
-
   @Column({ type: 'text' })
   desc: string;
 
