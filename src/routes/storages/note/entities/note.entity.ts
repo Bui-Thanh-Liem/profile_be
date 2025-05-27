@@ -7,7 +7,7 @@ import { Column, Entity, ManyToOne } from 'typeorm';
 
 @Entity('note')
 export class NoteEntity extends ABaseEntity implements INote {
-  @Column({ type: 'varchar', unique: true })
+  @Column({ type: 'varchar', length: 100, unique: true })
   title: string;
 
   @Column({ type: 'text', nullable: true })
