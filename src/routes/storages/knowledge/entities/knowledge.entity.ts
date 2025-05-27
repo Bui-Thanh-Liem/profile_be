@@ -3,8 +3,7 @@ import { ABaseEntity } from 'src/abstracts/ABaseEntity.abstract';
 import { IKnowledge } from 'src/interfaces/models.interface';
 import { CustomerEntity } from 'src/routes/customer/entities/customer.entity';
 import { UserEntity } from 'src/routes/user/entities/user.entity';
-import { UtilSlug } from 'src/utils/Slug.util';
-import { BeforeInsert, BeforeUpdate, Column, Entity, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
 import { KeywordEntity } from '../../keyword/entities/keyword.entity';
 
 @Entity('knowledge')
@@ -57,10 +56,4 @@ export class KnowledgeEntity extends ABaseEntity implements IKnowledge {
 
   @ManyToOne(() => UserEntity, { onDelete: 'SET NULL' })
   updatedBy: UserEntity;
-
-  // @BeforeInsert()
-  // @BeforeUpdate()
-  // createSlug?() {
-  //   this.slug = UtilSlug.generaSlug(this.name);
-  // }
 }
