@@ -11,7 +11,7 @@ export class AboutEntity extends ABaseEntity implements IAbout {
   @Column({ type: 'varchar', length: 128 })
   email: string;
 
-  @Column({ type: 'varchar', length: 11 })
+  @Column({ type: 'varchar', length: 20 })
   phone: string;
 
   @Column({ type: 'varchar' })

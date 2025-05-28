@@ -46,8 +46,10 @@ export class NoteController {
     return new ResponseSuccess('Success', results);
   }
 
-  @Delete(':id')
-  remove(@Body() ids: string[], @ActiveCustomer() active: TPayloadToken) {
-    return this.noteService.remove(ids, active);
+  @Customer()
+  @Delete()
+  async remove(@Body() ids: string[], @ActiveCustomer() active: TPayloadToken) {
+    const result = await this.noteService.remove(ids, active);
+    return new ResponseSuccess('Success', result);
   }
 }

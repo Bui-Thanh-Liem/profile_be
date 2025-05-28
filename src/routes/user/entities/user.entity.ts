@@ -27,7 +27,7 @@ export class UserEntity extends ABaseEntity implements IUser {
   @Column({ type: 'varchar' })
   password: string;
 
-  @Column({ type: 'varchar', nullable: true, unique: true })
+  @Column({ type: 'varchar', nullable: true })
   phone: string;
 
   @ManyToMany(() => RoleEntity, (role) => role.users)

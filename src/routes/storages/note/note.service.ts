@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CacheService } from 'src/helpers/services/Cache.service';
 import { ICreateService, IFindAllService, IUpdateService } from 'src/interfaces/common.interface';
@@ -7,7 +7,7 @@ import Exception from 'src/message-validations/exception.validation';
 import { CustomerEntity } from 'src/routes/customer/entities/customer.entity';
 import { TPayloadToken } from 'src/types/TPayloadToken.type';
 import { createKeyCustomerActive } from 'src/utils/createKeyCache';
-import { DeleteResult, In, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { NoteEntity } from './entities/note.entity';
@@ -21,10 +21,19 @@ export class NoteService {
   ) {}
 
   async create({ payload, active }: ICreateService<CreateNoteDto>) {
+    // Check exist name
+    const findItemByName = await this.noteRepository.findOneBy({
+      title: payload.title,
+    });
+    if (findItemByName) {
+      throw new ConflictException(Exception.exists('Title'));
+    }
+
     //
     const key = createKeyCustomerActive(active.customerId);
     const customerActive = await this.cacheService.getCache<CustomerEntity>(key);
 
+    //
     const dataCreate = this.noteRepository.create({ ...payload, customer: customerActive });
     return await this.noteRepository.save(dataCreate);
   }
@@ -48,7 +57,7 @@ export class NoteService {
       const queryBuilder = this.noteRepository.createQueryBuilder('note');
 
       // Add customer ID filter
-      queryBuilder.where('note.customerId = :customerId', { customerId: customerActive.id });
+      queryBuilder.where('note.customer = :customer', { customer: customerActive.id });
 
       // Add date range filter if provided
       if (rangeFrom) {
@@ -96,14 +105,13 @@ export class NoteService {
     const newItem = await this.noteRepository.save({
       ...findItem,
       ...payload,
-      customerId: customerActive,
-      updatedBy: customerActive,
+      customer: customerActive,
     });
 
     return newItem;
   }
 
-  async remove(ids: string[], active: TPayloadToken): Promise<DeleteResult[]> {
+  async remove(ids: string[], active: TPayloadToken): Promise<boolean> {
     //
     const findItems = await this.noteRepository.findBy({ id: In(ids) });
 
@@ -113,9 +121,9 @@ export class NoteService {
     }
 
     //
-    const itemDeleted = await Promise.all(ids.map((id) => this.noteRepository.delete(id)));
+    await Promise.all(ids.map((id) => this.noteRepository.delete(id)));
 
     //
-    return itemDeleted;
+    return true;
   }
 }

@@ -1,12 +1,11 @@
 import { Enums } from 'liemdev-profile-lib';
 import { ABaseEntity } from 'src/abstracts/ABaseEntity.abstract';
-import { ICustomer, INote } from 'src/interfaces/models.interface';
+import { ICustomer } from 'src/interfaces/models.interface';
 import { CustomerEntity } from 'src/routes/customer/entities/customer.entity';
-import { UserEntity } from 'src/routes/user/entities/user.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
 
 @Entity('note')
-export class NoteEntity extends ABaseEntity implements INote {
+export class NoteEntity extends ABaseEntity {
   @Column({ type: 'varchar', length: 100, unique: true })
   title: string;
 
@@ -30,10 +29,4 @@ export class NoteEntity extends ABaseEntity implements INote {
 
   @ManyToOne(() => CustomerEntity, { onDelete: 'SET NULL' })
   customer: ICustomer;
-
-  @ManyToOne(() => UserEntity, { onDelete: 'SET NULL' })
-  createdBy: UserEntity;
-
-  @ManyToOne(() => UserEntity, { onDelete: 'SET NULL' })
-  updatedBy: UserEntity;
 }
