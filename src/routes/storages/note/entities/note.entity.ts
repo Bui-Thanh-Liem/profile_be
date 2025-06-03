@@ -21,8 +21,8 @@ export class NoteEntity extends ABaseEntity {
   @Column({ type: 'varchar', length: 20, nullable: true })
   status: Enums.EStatus;
 
-  @Column({ type: 'varchar', length: 20, nullable: true })
-  shape: Enums.EShapeNote;
+  @Column({ type: 'bool', nullable: true, default: false })
+  isOutStand: boolean;
 
   @Column({ type: 'bool', nullable: true, default: false })
   pin: boolean;
